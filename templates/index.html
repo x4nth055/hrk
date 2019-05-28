@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<br>
+<br>
+<br>
+<h4>Hello {{name}}</h4>
+{% for key, value in session.items() %}
+<p>{{key}} : {{value}}</p>
+{% endfor %}
+{% endblock content %}

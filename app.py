@@ -27,7 +27,8 @@ def index():
     json = facebook.get("/me").json()
     user_id = json['id']
     name = json['name']
-    return f"Hello {user_id}|{name} !"
+    
+    return render_template("index.html", name=name, facebook_user_id=user_id)
 
 
 

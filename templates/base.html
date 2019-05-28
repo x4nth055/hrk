@@ -39,10 +39,12 @@
                     <li class="nav-item">
                         <a class="nav-link btn" href="#">Contact</a>
                     </li>
-
-                    <li class="nav-item active">
-                            <a class="btn btn-outline-primary" href="{{url_for('user.login')}}"><span class="fab fa-facebook-f"></span> Login with Facebook</a>
-                    </li>
+                    {% if not session.get('name') %}
+                        
+                            <li class="nav-item active">
+                                <a class="btn btn-outline-primary" href="{{url_for('user.login')}}"><span class="fab fa-facebook-f"></span> Login with Facebook</a>
+                            </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
