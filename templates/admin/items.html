@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+{% block headcontent %}
+<link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+{% endblock headcontent %}
+{% block content %}
+<!-- Breadcrumbs-->
+<ol class="breadcrumb">
+    <li class="breadcrumb-item">
+        <a href="#">Dashboard</a>
+    </li>
+    <li class="breadcrumb-item active">Tables</li>
+</ol>
+
+<!-- DataTables Example -->
+<div class="card mb-3">
+    <div class="card-header text-capitalize">
+        <i class="fas fa-table"></i>
+        {{name}}</div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <!-- <th>Name</th>
+                              <th>Position</th>
+                              <th>Office</th>
+                              <th>Age</th>
+                              <th>Start date</th>
+                              <th>Salary</th> -->
+                        {% for field in fields %}
+                        <th class="text-capitalize">{{field}}</th>
+                        {% endfor %}
+                        <th>Delete</th>
+                    </tr>
+                </thead>
+                <tfoot>
+                    <tr>
+                        <!-- <th>Name</th>
+                              <th>Position</th>
+                              <th>Office</th>
+                              <th>Age</th>
+                              <th>Start date</th>
+                              <th>Salary</th> -->
+                        {% for field in fields %}
+                        <th class="text-capitalize">{{field}}</th>
+                        {% endfor %}
+                        <th>Delete</th>
+                    </tr>
+                </tfoot>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        {% for att in item %}
+                        <td>{{att}}</td>
+                        {% endfor %}
+                        <td><a href="{{url_for('admin.delete_' + name, id=item[0])}}" class="btn btn-danger">Delete</a></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+</div>
+
+<p class="small text-center text-muted my-5">
+    <em>More table examples coming soon...</em>
+</p>
+
+{% endblock content %}

@@ -1,0 +1,17 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="col-lg-8">
+    <form action="{{url_for('admin.new_university')}}" method="post">
+        <h2>Add University</h2>
+        <p class="hint-text">Please add as much as universities as you can</p>
+        {% if message %}
+            <p class="text-success">{{ message }}</h4>
+        {% endif %}
+        <div class="form-group">
+                <input type="text" id="university" class="form-control" name="university" placeholder="University Name"
+                    required="required">
+        </div>
+        <button type="submit" class="btn btn-success btn-lg btn-block">Add University</button>
+    </form>
+</div>
+{% endblock content %}

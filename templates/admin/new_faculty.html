@@ -1,0 +1,25 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="col-lg-8">
+    <form action="{{url_for('admin.new_faculty')}}" method="post">
+        <h2>Add Faculty</h2>
+        <p class="hint-text">Please add as much as faculties as you can</p>
+        {% if message %}
+            <p class="text-success">{{ message }}</h4>
+        {% endif %}
+        <div class="form-group">
+            <select id="university" name="university" class="form-control">
+                <option>Select a university</option>
+                {% for univ_id, univ in universities %}
+                <option value="{{univ_id}}" class="text-capitalize">{{univ}}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+                <input type="text" id="faculty" class="form-control" name="faculty" placeholder="Faculty Name" required="required">
+        </div>
+        
+        <button type="submit" class="btn btn-success btn-lg btn-block">Add Faculty</button>
+    </form>
+</div>
+{% endblock content %}

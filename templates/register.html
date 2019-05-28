@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+{% block headcontent %}
+<style type="text/css">
+	body{
+		color: #fff;
+		/* background: #63738a; */
+		/* font-family: 'Roboto', sans-serif; */
+		background: url('https://www.moroccoworldnews.com/wp-content/uploads/2019/04/Protests-in-Algeria-1.jpg') no-repeat center center fixed;
+		-webkit-background-size: cover;
+		-moz-background-size: cover;
+		background-size: cover;
+		-o-background-size: cover;
+	}
+	.bg-dark {
+		opacity: 0.92;
+		filter: alpha(opacity=92); /* For IE8 and earlier */
+	}
+	img {
+		opacity: 0.5;
+		filter: alpha(opacity=50); /* For IE8 and earlier */
+	}
+    .form-control{
+		height: 40px;
+		box-shadow: none;
+		color: #969fa4;
+	}
+	.form-control:focus{
+		border-color: #5cb85c;
+	}
+    .form-control, .btn{        
+        border-radius: 3px;
+    }
+	.signup-form{
+		width: 700px;
+		margin: 0 auto;
+		padding: 30px 0;
+	}
+	.signup-form h2{
+		color: #636363;
+        margin: 0 0 15px;
+		position: relative;
+		text-align: center;
+    }
+	.signup-form h2:before, .signup-form h2:after{
+		content: "";
+		height: 2px;
+		width: 30%;
+		background: #d4d4d4;
+		position: absolute;
+		top: 50%;
+		z-index: 2;
+	}	
+	.signup-form h2:before{
+		left: 0;
+	}
+	.signup-form h2:after{
+		right: 0;
+	}
+    .signup-form .hint-text{
+		color: #999;
+		margin-bottom: 30px;
+		text-align: center;
+	}
+    .signup-form form{
+		color: #999;
+		border-radius: 5px;
+    	margin-bottom: 15px;
+        background: #f2f3f7;
+        box-shadow: 0px 2px 2px rgba(0, 0, 0, 0.3);
+        padding: 30px;
+    }
+	.signup-form .form-group{
+		margin-bottom: 20px;
+	}
+	.signup-form input[type="checkbox"]{
+		margin-top: 3px;
+	}
+	.signup-form .btn{        
+        font-size: 16px;
+        font-weight: bold;		
+		min-width: 140px;
+        outline: none !important;
+    }
+	.signup-form .row div:first-child{
+		padding-right: 10px;
+	}
+	.signup-form .row div:last-child{
+		padding-left: 10px;
+	}    	
+    .signup-form a{
+		color: #fff;
+		text-decoration: underline;
+	}
+    .signup-form a:hover{
+		text-decoration: none;
+	}
+	.signup-form form a{
+		color: #5cb85c;
+		text-decoration: none;
+	}	
+	.signup-form form a:hover{
+		text-decoration: underline;
+	}  
+</style>
+{% endblock headcontent %}
+{% block content %}
+
+    <div class="signup-form">
+        <form action="{{url_for('user.register')}}" method="post">
+			<input type="hidden" id="step" name="step" value="{{step+1}}">
+            <h2>Register: {{step}}/{{n_steps}}</h2>
+            <p class="hint-text">Create your account. It's free and only takes a minute.</p>
+            {% if error %}
+                <p class="text-danger">Some of the credentials isn't correct, try again please.</h4>
+            {% endif %}
+			{% if step == 1  %}
+				<div class="form-group">
+					<label for="university"><h5>Select University</h5></label>
+					<select id="university" name="university" placeholder="Select University" required="required" class="form-control">
+						<!-- <option>Select University</option> -->
+						{% for id, option in universities %}
+							<option value="{{id}}" class="text-capitalize" >{{option}}</option>
+						{% endfor %}
+					</select>
+				</div>
+			{% elif step == 2 %}
+				<div class="form-group">
+					<label for="faculty"><h5>Select Faculty</h5></label>
+					<select id="faculty" name="faculty" required="required" class="form-control">
+						{% for id, option in faculties %}
+							<option value="{{id}}" class="text-capitalize">{{option}}</option>
+						{% endfor %}
+					</select>
+				</div>
+			{% elif step == 3 %}
+				<div class="form-group">
+					<label for="department"><h5>Select Department</h5></label>
+					<select id="department" name="department" required="required" class="form-control">
+						{% for id, option in departments %}
+							<option value="{{id}}" class="text-capitalize">{{option}}</option>
+						{% endfor %}
+					</select>
+				</div>
+			{% elif step == 4 %}
+				<div class="form-group">
+					<label for="speciality"><h5>Select Speciality</h5></label>
+					<select id="speciality" name="speciality" required="required" class="form-control">
+						{% for id, option in specialities %}
+							<option value="{{id}}" class="text-capitalize">{{option}}</option>
+						{% endfor %}
+					</select>
+				</div>
+			{% elif step == 5 %}
+				<div class="form-group">
+					<label for="year"><h5>Select Year</h5></label>
+					<select id="year" name="year" required="required" class="form-control">
+					{% for id, option in years %}
+						<option value="{{id}}" class="text-capitalize">{{option}}</option>
+					{% endfor %}
+					</select>
+				</div>
+			
+			{% elif step == 6 %}
+			<div class="form-group">
+				<label for="group"><h5>Select Group</h5></label>
+				<select id="group" name="group" required="required" class="form-control">
+					{% for id, option in groups %}
+						<option value="{{id}}" class="text-capitalize">{{option}}</option>
+					{% endfor %}
+				</select>
+			</div>
+			{% elif step == 7 %}
+			<div class="form-group">
+				<div class="row">
+					<div class="col-xs-6"><input type="text" id="first_name" class="form-control" name="first_name" placeholder="First Name" required="required"></div>
+					<div class="col-xs-6"><input type="text" id="last_name" class="form-control" name="last_name" placeholder="Last Name" required="required"></div>
+				</div>       	
+			</div>
+			{% endif %}
+			{% if step == n_steps %}    
+            <div class="form-group">
+                <label class="checkbox-inline"><input type="checkbox" required="required"> I accept the <a href="#">Terms of Use</a> &amp; <a href="#">Privacy Policy</a></label>
+			</div>
+			{% endif %}
+            <div class="form-group">
+				{% if step == n_steps %}
+					<button type="submit" class="btn btn-success btn-lg btn-block">Create Account</button>
+				{% else %}
+					<button type="submit" class="btn btn-success btn-lg btn-block">Next</button>
+				{% endif %}
+			</div>
+			
+        </form>
+        <div class="text-center">Already have an account?
+			<a class="btn btn-outline-primary" href="{{url_for('user.login')}}">
+				<span class="fab fa-facebook-f"></span>
+				Sign in with Facebook
+			</a>
+		</div>
+    </div>
+
+{% endblock content %}

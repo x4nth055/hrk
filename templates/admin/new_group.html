@@ -1,0 +1,92 @@
+{% extends "admin/base.html" %}
+{% block content %}
+<div class="col-lg-8">
+    <form action="{{url_for('admin.new_group')}}" method="post">
+            <h2>Add Group</h2>
+            <p class="hint-text">Please add as much as groups as you can</p>
+            {% if message %}
+                <p class="text-success">{{ message }}</h4>
+            {% endif %}
+            <div class="form-group">
+                <select id="university" name="university" class="form-control">
+                    <option>Select a university</option>
+                    {% for univ_id, univ in universities %}
+                    <option value="{{univ_id}}" class="text-capitalize">{{univ}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <select id="faculty" name="faculty" class="form-control">
+                    <option>Select a faculty</option>
+                    {% for fac_id, fac in faculties %}
+                    <option value="{{fac_id}}" class="text-capitalize">{{fac}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <select id="department" name="department" class="form-control">
+                    <option>Select a department</option>
+                    {% for dep_id, dep in departments %}
+                    <option value="{{dep_id}}" class="text-capitalize">{{dep}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <select id="speciality" name="speciality" class="form-control">
+                    <option>Select a speciality</option>
+                    {% for spec_id, spec in specialities %}
+                    <option value="{{spec_id}}" class="text-capitalize">{{spec}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <select id="year" name="year" class="form-control">
+                    <option>Select a year</option>
+                    {% for year_id, year in years %}
+                    <option value="{{year_id}}" class="text-capitalize">{{year}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                    <input type="text" id="group" class="form-control" name="group" placeholder="Group Name"
+                        required="required">
+            </div>
+    
+            <button type="submit" class="btn btn-success btn-lg btn-block">Add Group</button>
+    </form>
+</div>
+{% endblock content %}
+{% block footcontent %}
+<script>
+    function addEditedSelectionEvent(changedElement, toChangeElement, url) {
+        $(changedElement).change(function() {
+            var fd = new FormData();
+            fd.append("id", $(changedElement).val());
+            $.ajax({
+                type: "POST",
+                url: url,
+                cache: false,
+                processData: false,
+                contentType: false,
+                data: fd
+            }).done(function(data) {
+                data = data.split("|");
+                $.each(data, function(index, value) {
+                    // Faculté Des nouvelles technologies de l'information et de la communication
+                    var item = value.split("__");
+                    var id = item[0];
+                    var name = item[1];
+                    var option = new Option(name, id);
+                    $(option).html(name);
+                    $(toChangeElement).append(option);
+                });
+            });
+        });
+    }
+
+    addEditedSelectionEvent("#university", "#faculty", "{{url_for('admin.faculties')}}");
+    addEditedSelectionEvent("#faculty", "#department", "{{url_for('admin.departments')}}");
+    addEditedSelectionEvent("#department", "#speciality", "{{url_for('admin.specialities')}}");
+    addEditedSelectionEvent("#speciality", "#year", "{{url_for('admin.years')}}");
+</script>
+{% endblock footcontent %}
