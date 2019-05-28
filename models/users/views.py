@@ -116,17 +116,6 @@ def login():
     session['type'] = user.type
     session['score'] = user.score
     
-    # self.name = name
-    # self.fb_info = fb_info
-    # self.university = university
-    # self.faculty = faculty
-    # self.department = department
-    # self.speciality = speciality
-    # self.year = year
-    # self.group = group
-    # self.type = type
-    # self.score = score
-    # self.id = id
     return redirect(url_for("index"))
 
 

@@ -1,5 +1,6 @@
 import sqlite3
 from common.utils import get_query, get_unique_id
+from config import ADMIN_VOTE_AMOUNT, MODERATOR_VOTE_AMOUNT, NORMAL_VOTE_AMOUNT
 
 class Database:
     URL = "db/db.sqlite3"
@@ -56,6 +57,13 @@ class Database:
         "YEAR_ID": "VARCHAR"
     }
 
+    VOTE_FIELDS = {
+        "VOTER_ID": "VARCHAR",
+        "VOTED_ID": "VARCHAR",
+        "ACTION": "VARCHAR",
+        "PRIMARY KEY": "(VOTER_ID, VOTED_ID)"
+    }
+
     # all table queries need to be added here
     TABLE_QUERIES = [
         get_query("USER", USER_FIELDS),
@@ -64,7 +72,8 @@ class Database:
         get_query("DEPARTMENT", DEPARTMENT_FIELDS),
         get_query("SPECIALITY", SPECIALITY_FIELDS),
         get_query("YEAR", YEAR_FIELDS),
-        get_query("GROUPE", GROUP_FIELDS)
+        get_query("GROUPE", GROUP_FIELDS),
+        get_query("VOTE", VOTE_FIELDS)
     ]
 
     @classmethod
@@ -242,6 +251,70 @@ class Database:
         cls.DATABASE.execute(f"UPDATE USER SET SCORE = SCORE + {amount} WHERE ID = ?", (id,))
         cls.DATABASE.commit()
         return True
+
+    ### Vote entity ###
+    
+    @classmethod
+    def get_user_votes(cls, voter_id):
+        return [ v[0] for v in cls.DATABASE.execute("SELECT VOTED_ID FROM VOTE WHERE VOTER_ID = ?", (voter_id,)).fetchall() ]
+
+    @classmethod
+    def get_user_voters(cls, voted_id):
+        return [ v[0] for v in cls.DATABASE.execute("SELECT VOTER_ID FROM VOTE WHERE VOTED_ID = ?", (voted_id,)).fetchall() ]
+
+    @classmethod
+    def get_vote_action(cls, voter_id, voted_id):
+        return cls.DATABASE.execute("SELECT ACTION FROM VOTE WHERE VOTER_ID = ? AND VOTED_ID = ?", (voter_id, voted_id)).fetchone()
+
+    @classmethod
+    def delete_vote(cls, voter_id, voted_id):
+        cls.DATABASE.execute("DELETE FROM VOTE WHERE VOTER_ID = ? AND VOTED_ID = ?", (voter_id, voted_id))
+        cls.DATABASE.commit()
+
+    @classmethod
+    def add_vote(cls, voter_id, voted_id, action):
+        """Add a new vote. Note that if there are existing votes for these users
+        It will basically override the old vote"""
+        action = action.lower()
+        existing_action = cls.get_vote_action(voter_id, voted_id)
+        if len(existing_action) == 0:
+            voter = cls.get_user_by_id(voter_id)
+            # get score to be added depends on voter type
+            if voter['type'] == 'admin':
+                amount = ADMIN_VOTE_AMOUNT
+            elif voter['type'] == 'moderator':
+                amount = MODERATOR_VOTE_AMOUNT
+            elif voter['type'] == 'normal':
+                amount = NORMAL_VOTE_AMOUNT
+            # no existing action before
+            cls.DATABASE.execute("INSERT INTO VOTE VALUES ( ?, ?, ? )", (voter_id, voted_id, action))
+            if action == "up":
+                cls.add_user_score(voted_id, amount)
+            elif action == "down":
+                cls.add_user_score(voted_id, -amount)
+        else:
+            existing_action = existing_action[0].lower()
+            if existing_action == action:
+                # already did that action
+                return
+            else:
+                voter = cls.get_user_by_id(voter_id)
+                # get score to be added depends on voter type
+                if voter['type'] == 'admin':
+                    amount = ADMIN_VOTE_AMOUNT
+                elif voter['type'] == 'moderator':
+                    amount = MODERATOR_VOTE_AMOUNT
+                elif voter['type'] == 'normal':
+                    amount = NORMAL_VOTE_AMOUNT
+                # delete previous vote
+                cls.delete_vote(voter_id, voted_id)
+                # insert new vote
+                cls.DATABASE.execute("INSERT INTO VOTE VALUES ( ?, ?, ? )", (voter_id, voted_id, action))
+                if existing_action == "down" and action == "up":
+                    cls.add_user_score(voted_id, 2*amount)
+                else:
+                    # existing_action = "up" and new_action = "down"
+                    cls.add_user_score(voted_id, -2*amount)
 
 
     ## Utilities
