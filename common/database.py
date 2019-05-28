@@ -253,7 +253,7 @@ class Database:
 
     @classmethod
     def _get_name(cls, class_name, id):
-        return cls.DATABASE.execute(f"SELECT NAME FROM {class_name.upper()} WHERE ID = ?", (id,))
+        return cls.DATABASE.execute(f"SELECT NAME FROM {class_name.upper()} WHERE ID = ?", (id,)).fetchall()
 
     ### Univerity entity ###
 

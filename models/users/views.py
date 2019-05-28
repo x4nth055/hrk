@@ -88,8 +88,9 @@ def register():
 
 
 @user_blueprint.route("/login", methods=['GET', 'POST'])
-@utils.login_required
+@utils.not_logged_in_required
 def login():
+    print("hi")
     # oauth with facebook
     if not facebook.authorized:
         return redirect(url_for("facebook.login"))
@@ -98,6 +99,7 @@ def login():
     user_id = json['id']
     name = json['name']
     fb_info = user_id + "|" + name
+    print(fb_info)
     user = Database.get_user_by_fb_info(fb_info)
     if not user:
         # not registered in database, redirect to register

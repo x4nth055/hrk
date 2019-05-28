@@ -3,7 +3,7 @@ import common.utils as utils
 
 
 class User:
-    def __init__(self, name, fb_info, university, faculty, department, speciality, year, group, type, score, id=None):
+    def __init__(self, name, fb_info, university, faculty, department, speciality, year, groupe, type, score, id=None):
         self.name = name
         self.fb_info = fb_info
         self.university = university
@@ -11,7 +11,7 @@ class User:
         self.department = department
         self.speciality = speciality
         self.year = year
-        self.group = group
+        self.group = groupe
         self.type = type
         self.score = score
         self.id = id
