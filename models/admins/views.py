@@ -10,6 +10,7 @@ add_speciality = Database.add_speciality
 add_year = Database.add_year
 add_group = Database.add_group
 
+get_all_users = Database.get_all_users
 get_all_universities = Database.get_all_universities
 get_all_faculties = Database.get_all_faculties
 get_all_departments = Database.get_all_departments
@@ -25,6 +26,15 @@ get_groups = Database.get_groups
 
 admin_blueprint = Blueprint("admin", __name__)
 
+@admin_blueprint.route("/")
+@admin_required
+def home():
+    n_users = Database.get_number_of_users()
+    n_universities = len(get_all_universities())
+    n_faculties = len(get_all_faculties())
+    n_departments = len(get_all_departments())
+    return render_template("admin/index.html", n_users=n_users, n_universities=n_universities,
+                            n_faculties=n_faculties, n_departments=n_departments)
 
 @admin_blueprint.route("new_university", methods=['GET', 'POST'])
 @admin_required
@@ -108,6 +118,14 @@ def new_group():
         return render_template("admin/new_group.html", universities=universities, message="Group added successfully.")
 
 
+@admin_blueprint.route("users")
+@admin_required
+def user():
+    users = [ (data['id'], data['fb_info'].split("|")[0], data['fb_info'].split("|")[1], data['type'], data['score']) for data in get_all_users(formalize=True) ]
+    fields = ["ID", "Facebook ID", "Facebook Name", "User Type", "Reputation/Score"]
+    return render_template("admin/items.html", items=users, fields=fields, name="users", len=len)
+
+
 @admin_blueprint.route("universities")
 @admin_required
 def university():
@@ -189,6 +207,12 @@ def groups():
 
 ## Item Deletions
 
+@admin_blueprint.route("delete_users/<id>")
+@admin_required
+def delete_users(id):
+    Database.delete_user(id)
+    return redirect_previous_url()
+
 @admin_blueprint.route("delete_university/<id>")
 @admin_required
 def delete_universities(id):
@@ -223,4 +247,15 @@ def delete_years(id):
 @admin_required
 def delete_groups(id):
     Database.delete_group(id)
+    return redirect_previous_url()
+
+# Item editions
+@admin_blueprint.route("edit_user/")
+@admin_required
+def edit_user():
+    id = request.args.get("id")
+    type = request.args.get("type")
+    print(id)
+    print(type)
+    Database.edit_user(id, type=type)
     return redirect_previous_url()

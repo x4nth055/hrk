@@ -1,12 +1,12 @@
 {% extends "admin/base.html" %}
 {% block headcontent %}
-<link href="vendor/datatables/dataTables.bootstrap4.css" rel="stylesheet">
+<link href="{{url_for('static', filename='css/dataTables.bootstrap4.css')}}" rel="stylesheet">
 {% endblock headcontent %}
 {% block content %}
 <!-- Breadcrumbs-->
 <ol class="breadcrumb">
     <li class="breadcrumb-item">
-        <a href="#">Dashboard</a>
+        <a href="{{url_for('admin.home')}}">Dashboard</a>
     </li>
     <li class="breadcrumb-item active">Tables</li>
 </ol>
@@ -31,6 +31,10 @@
                         <th class="text-capitalize">{{field}}</th>
                         {% endfor %}
                         <th>Delete</th>
+                        {% if name == 'users' %}
+                        <th>Make Moderator</th>
+                        <th>Make Admin</th>
+                        {% endif %}
                     </tr>
                 </thead>
                 <tfoot>
@@ -45,6 +49,10 @@
                         <th class="text-capitalize">{{field}}</th>
                         {% endfor %}
                         <th>Delete</th>
+                        {% if name == 'users' %}
+                        <th>Make Moderator</th>
+                        <th>Make Admin</th>
+                        {% endif %}
                     </tr>
                 </tfoot>
                 <tbody>
@@ -53,7 +61,11 @@
                         {% for att in item %}
                         <td>{{att}}</td>
                         {% endfor %}
-                        <td><a href="{{url_for('admin.delete_' + name, id=item[0])}}" class="btn btn-danger">Delete</a></td>
+                        <td><a href="{{url_for('admin.delete_' + name, id=item[0])}}" class="btn btn-outline-danger">Delete</a></td>
+                        {% if name == 'users' %}
+                        <td><a href="{{url_for('admin.edit_user', id=item[0], type='moderator')}}" class="btn btn-outline-primary">Make Moderator</a></td>
+                        <td><a href="{{url_for('admin.edit_user', id=item[0], type='admin')}}" class="btn btn-outline-success">Make Admin</a></td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
                 </tbody>

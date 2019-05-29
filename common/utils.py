@@ -2,6 +2,10 @@ import base64
 from flask import redirect, request, url_for, session
 from passlib.hash import pbkdf2_sha256
 from functools import wraps
+from flask_dance.contrib.facebook import facebook
+
+
+import time
 import os
 
 
@@ -27,9 +31,9 @@ def hash_pw(password):
     return pbkdf2_sha256.hash(password)
 
 
-def email_valid(email):
-    # TODO
-    return True
+
+
+
 
 
 def redirect_previous_url(default='home'):
@@ -39,7 +43,7 @@ def redirect_previous_url(default='home'):
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kws):
-        name = session.get("name")
+        name = session.get("facebook_oauth_token")
         if name is None:
             # if not logged in, get back from where you came!
             # if the first time, go register

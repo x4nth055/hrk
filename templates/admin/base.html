@@ -17,7 +17,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css" />
 
   <!-- Page level plugin CSS-->
-  <link href="{{url_for('static', filename='css/dataTables.bootstrap4.min')}}" rel="stylesheet">
+  <link href="{{url_for('static', filename='css/dataTables.bootstrap4.min.css')}}" rel="stylesheet">
 
   <!-- Custom styles for this template-->
   <link href="{{url_for('static', filename='css/sb-admin.css')}}" rel="stylesheet">
@@ -31,7 +31,7 @@
 
   <nav class="navbar navbar-expand navbar-dark bg-dark static-top">
 
-    <a class="navbar-brand mr-1" href="index.html">Start Bootstrap</a>
+    <a class="navbar-brand mr-1" href="{{url_for('admin.home')}}">Admin Dashboard</a>
 
     <button class="btn btn-link btn-sm text-white order-1 order-sm-0" id="sidebarToggle" href="#">
       <i class="fas fa-bars"></i>
@@ -83,7 +83,7 @@
           <a class="dropdown-item" href="#">Settings</a>
           <a class="dropdown-item" href="#">Activity Log</a>
           <div class="dropdown-divider"></div>
-          <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">Logout</a>
+          <a class="dropdown-item" href="{{url_for('user.logout')}}" data-toggle="modal" data-target="#logoutModal">Logout</a>
         </div>
       </li>
     </ul>
@@ -95,7 +95,7 @@
     <!-- Sidebar -->
     <ul class="sidebar navbar-nav">
       <li class="nav-item">
-        <a class="nav-link" href="#">
+        <a class="nav-link" href="{{url_for('admin.home')}}">
           <i class="fas fa-fw fa-tachometer-alt"></i>
           <span>Dashboard</span>
         </a>

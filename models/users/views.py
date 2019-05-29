@@ -3,6 +3,7 @@ from models.users.user import User
 from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
 from common.database import Database
 import common.utils as utils
+import time
 
 get_all_universities = Database.get_all_universities
 get_faculties = Database.get_faculties
@@ -12,6 +13,43 @@ get_years = Database.get_years
 get_groups = Database.get_groups
 
 user_blueprint = Blueprint("user", __name__)
+
+# some utilities
+
+def _get_user_info():
+    """Gets user's info from facebook, then query db to extract various fields."""
+    # get facebook account info
+    json = facebook.get("/me").json()
+    user_id = json['id']
+    name = json['name']
+    fb_info = user_id + "|" + name
+
+    # some logging
+    date_now = time.strftime("%Y-%m-%d")
+    time_now = time.strftime("%Y-%m-%d_%H%M%S")
+    print(f"[*] {time_now} -", fb_info, "logged", file=open(f"logs/{date_now}.log", "a"))
+    print(f"[*] {time_now} -", fb_info, "logged")
+
+    user = Database.get_user_by_fb_info(fb_info)
+    return user
+    
+
+def _save_user_info(user):
+    """Saves user fields into the session"""
+    user = User(**user)
+    session['id'] = user.id
+    session['name'] = user.name
+    session['fb_info'] = user.fb_info
+    session['university'] = Database.get_university_name(user.university)
+    session['faculty'] = Database.get_faculty_name(user.faculty)
+    session['department'] = Database.get_department_name(user.department)
+    session['speciality'] = Database.get_speciality_name(user.speciality)
+    session['year'] = Database.get_year_name(user.year)
+    session['group'] = Database.get_group_name(user.group)
+    session['type'] = user.type
+    session['score'] = user.score
+
+
 
 @user_blueprint.route("/register", methods=["POST", "GET"])
 @utils.not_logged_in_required
@@ -81,7 +119,7 @@ def register():
             score = 0
 
             user = User(name=name, fb_info=fb_info, university=university, faculty=faculty, department=department,
-                        speciality=speciality, year=year, group=group, type=type, score=score)
+                        speciality=speciality, year=year, groupe=group, type=type, score=score)
             user.save()
             
             return redirect(url_for("index"))
@@ -94,34 +132,18 @@ def login():
     if not facebook.authorized:
         return redirect(url_for("facebook.login"))
     # get facebook account info
-    json = facebook.get("/me").json()
-    user_id = json['id']
-    name = json['name']
-    fb_info = user_id + "|" + name
-    print("[*]", fb_info, "logged")
-    user = Database.get_user_by_fb_info(fb_info)
+    user = _get_user_info()
     if not user:
         # not registered in database, redirect to register
         return redirect(url_for("user.register"))
-    user = User(**user)
-    session['id'] = user.id
-    session['name'] = user.name
-    session['fb_info'] = user.fb_info
-    session['university'] = Database.get_university_name(user.university)
-    session['faculty'] = Database.get_faculty_name(user.faculty)
-    session['department'] = Database.get_department_name(user.department)
-    session['speciality'] = Database.get_speciality_name(user.speciality)
-    session['year'] = Database.get_year_name(user.year)
-    session['group'] = Database.get_group_name(user.group)
-    session['type'] = user.type
-    session['score'] = user.score
-    
-    return redirect(url_for("index"))
 
+    _save_user_info(user)
+
+    return redirect(url_for("index"))
 
 @user_blueprint.route("/logout")
 @utils.login_required
 def logout():
     # clear the session
     session.clear()
-    return utils.redirect_previous_url(default="index")
+    return redirect(url_for('user.register'))

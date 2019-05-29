@@ -1,6 +1,6 @@
 import sqlite3
 from common.utils import get_query, get_unique_id
-from config import ADMIN_VOTE_AMOUNT, MODERATOR_VOTE_AMOUNT, NORMAL_VOTE_AMOUNT
+from config import ADMIN_VOTE_AMOUNT, MODERATOR_VOTE_AMOUNT, NORMAL_VOTE_AMOUNT, MINIMUM_REQUIRED_SCORE
 
 class Database:
     URL = "db/db.sqlite3"
@@ -273,39 +273,45 @@ class Database:
 
     @classmethod
     def add_vote(cls, voter_id, voted_id, action):
-        """Add a new vote. Note that if there are existing votes for these users
-        It will basically override the old vote"""
+        """Add a new vote.
+        - if voter's score is not enough, does nothing and returns `False`
+        - if no existing vote before is available, register a new vote based on `action` and returns `True`
+        - if there are already an existing vote with that `voter_id` and `voted_id`, there are 3 cases:
+            1. if the previous action (vote) is same as the new `action`, just returns `False`.
+            2. if the previous action is 'down' and new `action` is 'up',
+                insert a new vote and add `2*amount` ( cancel the previous and add current ) 
+                to the `voted_id`'s score and returns `True`
+            3. if the previous action is 'up' and new `action` is 'down',
+                insert a new vote and subtract `2*amount` to the `voted_id`'s score
+                and returns `True`"""
         action = action.lower()
+        voter = cls.get_user_by_id(voter_id)
+        if voter['score'] < MINIMUM_REQUIRED_SCORE:
+            # if voter does not enough score to vote, just return False
+            return False
+        # get score to be added depends on voter type
+        if voter['type'] == 'admin':
+            amount = ADMIN_VOTE_AMOUNT
+        elif voter['type'] == 'moderator':
+            amount = MODERATOR_VOTE_AMOUNT
+        elif voter['type'] == 'normal':
+            amount = NORMAL_VOTE_AMOUNT
+        # get previous vote if available
         existing_action = cls.get_vote_action(voter_id, voted_id)
         if len(existing_action) == 0:
-            voter = cls.get_user_by_id(voter_id)
-            # get score to be added depends on voter type
-            if voter['type'] == 'admin':
-                amount = ADMIN_VOTE_AMOUNT
-            elif voter['type'] == 'moderator':
-                amount = MODERATOR_VOTE_AMOUNT
-            elif voter['type'] == 'normal':
-                amount = NORMAL_VOTE_AMOUNT
             # no existing action before
             cls.DATABASE.execute("INSERT INTO VOTE VALUES ( ?, ?, ? )", (voter_id, voted_id, action))
             if action == "up":
                 cls.add_user_score(voted_id, amount)
             elif action == "down":
                 cls.add_user_score(voted_id, -amount)
+            return True
         else:
             existing_action = existing_action[0].lower()
             if existing_action == action:
                 # already did that action
-                return
+                return False
             else:
-                voter = cls.get_user_by_id(voter_id)
-                # get score to be added depends on voter type
-                if voter['type'] == 'admin':
-                    amount = ADMIN_VOTE_AMOUNT
-                elif voter['type'] == 'moderator':
-                    amount = MODERATOR_VOTE_AMOUNT
-                elif voter['type'] == 'normal':
-                    amount = NORMAL_VOTE_AMOUNT
                 # delete previous vote
                 cls.delete_vote(voter_id, voted_id)
                 # insert new vote
@@ -315,6 +321,7 @@ class Database:
                 else:
                     # existing_action = "up" and new_action = "down"
                     cls.add_user_score(voted_id, -2*amount)
+                return True
 
 
     ## Utilities
