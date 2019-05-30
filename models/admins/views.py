@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, session, current_app as app
 from flask import redirect, url_for
+from config import MINIMUM_REQUIRED_SCORE
 from common.database import Database
 from common.utils import get_items_from_ajax, redirect_previous_url, admin_required
 
@@ -255,6 +256,14 @@ def delete_groups(id):
 def edit_user():
     id = request.args.get("id")
     type = request.args.get("type")
+    # get previous type
+    previous_type = Database.get_user_by_id(id)['type']
     Database.edit_user(id, type=type)
-    Database.add_user_score(id, 2)
+    # handle score addition
+    # if normal -> admin: +2
+    # if normal -> moderator: +2
+    # if admin -> moderator: 0
+    # if moderator -> admin: 0
+    if previous_type == "normal" and ( type == "admin" or type == "moderator" ):
+        Database.add_user_score(id, 2)
     return redirect_previous_url()

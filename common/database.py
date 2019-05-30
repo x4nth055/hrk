@@ -286,7 +286,8 @@ class Database:
     @classmethod
     def add_vote(cls, voter_id, voted_id, action):
         """Add a new vote.
-        - if voter's score is not enough, does nothing and returns score.
+        - if voter is the voted, does nothing and returns "Cannot vote your self."
+        - if voter's score is not enough, does nothing and returns "Not enough reputation to vote.".
         - if no existing vote before is available, register a new vote based on `action` and returns the updated score
         - if there are already an existing vote with that `voter_id` and `voted_id`, there are 3 cases:
             1. if the previous action (vote) is same as the new `action`, just returns score.
@@ -296,11 +297,13 @@ class Database:
             3. if the previous action is 'up' and new `action` is 'down',
                 insert a new vote and subtract `2*amount` to the `voted_id`'s score
                 and returns the updated score"""
+        # if voter_id == voted_id:
+        #     return "You cannot vote your self."
         action = action.lower()
         voter = cls.get_user_by_id(voter_id)
         if voter['score'] < MINIMUM_REQUIRED_SCORE:
             # if voter does not enough score to vote, just return False
-            return cls.get_user_by_id(voted_id)['score']
+            return f"You do not have enough reputation to vote, minimum required is {MINIMUM_REQUIRED_SCORE}."
         # get score to be added depends on voter type
         if voter['type'] == 'admin':
             amount = ADMIN_VOTE_AMOUNT

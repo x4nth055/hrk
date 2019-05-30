@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block headcontent %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.css" />
 <style type="text/css">
     body {
         /* color: #fff; */
@@ -42,6 +43,11 @@
 </style>
 {% endblock %}
 {% block content %}
+
+<div id="modal-message" class="modal">
+    <p>You have already voted for that student.</p>
+    <a class="btn btn-danger" href="#" rel="modal:close">Close</a>
+</div>
 
 
 <div class="container home">
@@ -104,6 +110,8 @@
 
 {% endblock content %}
 {% block footcontent %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-modal/0.9.1/jquery.modal.min.js"></script>
+
 <script>
     $("#selection").change(function() {
         var value = $("#selection").val().split("/");
@@ -129,6 +137,21 @@
     var VOTED_COLOR = "rgb(204, 0, 0)";
 
     function addVote(element, votedId, action) {
+        // get color of clicked arrow
+        if(action == "up") {
+            var color = $(element).css("border-bottom-color")
+        } else if(action == "down") {
+            var color = $(element).css("border-top-color")
+        }
+
+        // if already voted, exit
+        if(color == VOTED_COLOR) {
+            $("#modal-message p").text("You have already voted for that student mate.");
+            $("#modal-message").modal({fadeDuration: 100});
+            return;
+        }
+
+        // get existing user score
         var userScore = parseInt($("#score_"+ votedId).text());
         var fd = new FormData();
         fd.append("voted_id", votedId);
@@ -141,10 +164,15 @@
             cache: false,
             processData: false,
             contentType: false,
-        }).done(function(updatedUserScore) {
-            console.log(updatedUserScore);
+        }).done(function(message) {
+            // console.log(message);
             // change button colors
-            updatedUserScore = parseInt(updatedUserScore);
+            updatedUserScore = parseInt(message);
+            // if the returned is an error message
+            if(String(updatedUserScore) == "NaN") {
+                $("#modal-message p").text(message);
+                $("#modal-message").modal({fadeDuration: 100});
+            }
             // compare the previous score and updated score
             if(updatedUserScore > userScore) {
                 changeColor(".arrow-up."+ votedId, VOTED_COLOR, "up");

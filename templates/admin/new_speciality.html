@@ -55,6 +55,8 @@
                 contentType: false,
                 data: fd
             }).done(function(data) {
+                // clear previous options
+                $(toChangeElement + " option").remove();
                 data = data.split("|");
                 $.each(data, function(index, value) {
                     // Faculté Des nouvelles technologies de l'information et de la communication

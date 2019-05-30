@@ -32,12 +32,9 @@ def hash_pw(password):
 
 
 
-
-
-
-
 def redirect_previous_url(default='home'):
     return redirect(request.args.get('next') or request.referrer or url_for(default))
+
 
 
 def login_required(f):
@@ -56,9 +53,7 @@ def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kws):
         name = session.get("name")
-        type = session.get("type")
-        print(name)
-        print(type)
+        type = session.get("type").strip()
         if name is None:
             # if not logged in, get back from where you came!
             # if the first time, go register

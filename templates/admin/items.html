@@ -27,7 +27,7 @@
                               <th>Age</th>
                               <th>Start date</th>
                               <th>Salary</th> -->
-                        {% for field in fields %}
+                        {% for field in fields[1:] %}
                         <th class="text-capitalize">{{field}}</th>
                         {% endfor %}
                         <th>Delete</th>
@@ -45,7 +45,7 @@
                               <th>Age</th>
                               <th>Start date</th>
                               <th>Salary</th> -->
-                        {% for field in fields %}
+                        {% for field in fields[1:] %}
                         <th class="text-capitalize">{{field}}</th>
                         {% endfor %}
                         <th>Delete</th>
@@ -58,7 +58,7 @@
                 <tbody>
                     {% for item in items %}
                     <tr>
-                        {% for att in item %}
+                        {% for att in item[1:] %}
                         <td>{{att}}</td>
                         {% endfor %}
                         <td><a href="{{url_for('admin.delete_' + name, id=item[0])}}" class="btn btn-outline-danger">Delete</a></td>
