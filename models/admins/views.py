@@ -255,7 +255,6 @@ def delete_groups(id):
 def edit_user():
     id = request.args.get("id")
     type = request.args.get("type")
-    print(id)
-    print(type)
     Database.edit_user(id, type=type)
+    Database.add_user_score(id, 2)
     return redirect_previous_url()

@@ -3,7 +3,9 @@ from models.users.user import User
 from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
 from common.database import Database
 import common.utils as utils
+
 import time
+import json
 
 get_all_universities = Database.get_all_universities
 get_faculties = Database.get_faculties
@@ -40,12 +42,12 @@ def _save_user_info(user):
     session['id'] = user.id
     session['name'] = user.name
     session['fb_info'] = user.fb_info
-    session['university'] = Database.get_university_name(user.university)
-    session['faculty'] = Database.get_faculty_name(user.faculty)
-    session['department'] = Database.get_department_name(user.department)
-    session['speciality'] = Database.get_speciality_name(user.speciality)
-    session['year'] = Database.get_year_name(user.year)
-    session['group'] = Database.get_group_name(user.group)
+    session['university'] = (user.university, Database.get_university_name(user.university))
+    session['faculty'] = (user.faculty, Database.get_faculty_name(user.faculty))
+    session['department'] = (user.department, Database.get_department_name(user.department))
+    session['speciality'] = (user.speciality, Database.get_speciality_name(user.speciality))
+    session['year'] = (user.year, Database.get_year_name(user.year))
+    session['group'] = (user.group, Database.get_group_name(user.group))
     session['type'] = user.type
     session['score'] = user.score
 
@@ -105,7 +107,7 @@ def register():
             session['fb_info'] = fb_info
             return render_template("register.html", step=step, n_steps=n_steps)
         elif step == 8:
-            session['name'] = request.form.get("first_name").strip() + " " + request.form.get("last_name").strip()
+            session['name'] = request.form.get("first_name").strip().capitalize() + " " + request.form.get("last_name").strip().capitalize()
             name = session.get("name")
             fb_info = session.get("fb_info")
             university = session.get("university")
@@ -147,3 +149,60 @@ def logout():
     # clear the session
     session.clear()
     return redirect(url_for('user.register'))
+
+
+@user_blueprint.route("/vote", methods=['GET', 'POST'])
+@utils.login_required
+def vote():
+    if request.method == 'POST':
+        # add new vote
+        voted_id = request.form.get("voted_id")
+        action = request.form.get("action")
+        score = str(Database.add_vote(voter_id=session['id'], voted_id=voted_id, action=action))
+        return score
+    elif request.method == "GET":
+        voted_id = request.args.get("voted_id")
+        action = Database.get_vote_action(session['id'], voted_id)
+        if action is None:
+            return "None"
+        return action[0]
+
+
+
+@user_blueprint.route("/group/<id>")
+# @utils.login_required
+def users_by_group(id):
+    users = Database.get_users_by_group(id)
+    return json.dumps(users)
+
+@user_blueprint.route("/speciality/<id>")
+@utils.login_required
+def users_by_speciality(id):
+    users = Database.get_users_by_speciality(id)
+    return json.dumps(users)
+
+@user_blueprint.route("/year/<id>")
+@utils.login_required
+def users_by_year(id):
+    users = Database.get_users_by_year(id)
+    return json.dumps(users)
+
+
+@user_blueprint.route("/department/<id>")
+@utils.login_required
+def users_by_department(id):
+    users = Database.get_users_by_department(id)
+    return json.dumps(users)
+
+@user_blueprint.route("/faculty/<id>")
+@utils.login_required
+def users_by_faculty(id):
+    users = Database.get_users_by_faculty(id)
+    return json.dumps(users)
+
+
+@user_blueprint.route("/university/<id>")
+@utils.login_required
+def users_by_university(id):
+    users = Database.get_users_by_university(id)
+    return json.dumps(users)

@@ -34,7 +34,9 @@ def index():
         # not registered in database, redirect to register
         return redirect(url_for("user.register"))
     _save_user_info(user)
-    return render_template("index.html")
+    users = Database.get_users_by_group(session['group'][0])
+    facebook_user_id = session['fb_info'].split("|")[0]
+    return render_template("index.html", users=users, facebook_user_id=facebook_user_id)
 
 
 @app.route("/profile")
@@ -44,6 +46,8 @@ def profile():
     user_id = json['id']
     name = json['name']
     return render_template("profile.html", name=name, facebook_user_id=user_id)
+
+
 
 
 app.run(port=3001, debug=True)

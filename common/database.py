@@ -215,6 +215,18 @@ class Database:
         return cls._get_users_by("SPECIALITY", speciality, formalize)
 
     @classmethod
+    def get_users_by_faculty(cls, faculty, formalize=True):
+        return cls._get_users_by("FACULTY", faculty, formalize)
+
+    @classmethod
+    def get_users_by_year(cls, year, formalize=True):
+        return cls._get_users_by("YEAR", year, formalize)
+
+    @classmethod
+    def get_users_by_group(cls, group, formalize=True):
+        return cls._get_users_by("GROUPE", group, formalize)
+
+    @classmethod
     def get_users_by_fields(cls, fields, formalize=True):
         """Retrieves users by many fields
         e.g. 
@@ -274,21 +286,21 @@ class Database:
     @classmethod
     def add_vote(cls, voter_id, voted_id, action):
         """Add a new vote.
-        - if voter's score is not enough, does nothing and returns `False`
-        - if no existing vote before is available, register a new vote based on `action` and returns `True`
+        - if voter's score is not enough, does nothing and returns score.
+        - if no existing vote before is available, register a new vote based on `action` and returns the updated score
         - if there are already an existing vote with that `voter_id` and `voted_id`, there are 3 cases:
-            1. if the previous action (vote) is same as the new `action`, just returns `False`.
+            1. if the previous action (vote) is same as the new `action`, just returns score.
             2. if the previous action is 'down' and new `action` is 'up',
                 insert a new vote and add `2*amount` ( cancel the previous and add current ) 
-                to the `voted_id`'s score and returns `True`
+                to the `voted_id`'s score and returns the updated score
             3. if the previous action is 'up' and new `action` is 'down',
                 insert a new vote and subtract `2*amount` to the `voted_id`'s score
-                and returns `True`"""
+                and returns the updated score"""
         action = action.lower()
         voter = cls.get_user_by_id(voter_id)
         if voter['score'] < MINIMUM_REQUIRED_SCORE:
             # if voter does not enough score to vote, just return False
-            return False
+            return cls.get_user_by_id(voted_id)['score']
         # get score to be added depends on voter type
         if voter['type'] == 'admin':
             amount = ADMIN_VOTE_AMOUNT
@@ -298,19 +310,19 @@ class Database:
             amount = NORMAL_VOTE_AMOUNT
         # get previous vote if available
         existing_action = cls.get_vote_action(voter_id, voted_id)
-        if len(existing_action) == 0:
+        if existing_action is None:
             # no existing action before
             cls.DATABASE.execute("INSERT INTO VOTE VALUES ( ?, ?, ? )", (voter_id, voted_id, action))
             if action == "up":
                 cls.add_user_score(voted_id, amount)
             elif action == "down":
                 cls.add_user_score(voted_id, -amount)
-            return True
+            return cls.get_user_by_id(voted_id)['score']
         else:
             existing_action = existing_action[0].lower()
             if existing_action == action:
                 # already did that action
-                return False
+                return cls.get_user_by_id(voted_id)['score']
             else:
                 # delete previous vote
                 cls.delete_vote(voter_id, voted_id)
@@ -321,7 +333,7 @@ class Database:
                 else:
                     # existing_action = "up" and new_action = "down"
                     cls.add_user_score(voted_id, -2*amount)
-                return True
+                return cls.get_user_by_id(voted_id)['score']
 
 
     ## Utilities

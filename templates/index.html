@@ -1,10 +1,205 @@
 {% extends "base.html" %}
+{% block headcontent %}
+<style type="text/css">
+    body {
+        /* color: #fff; */
+        /* background: #63738a; */
+        /* font-family: 'Roboto', sans-serif; */
+        background: url('https://www.moroccoworldnews.com/wp-content/uploads/2019/04/Protests-in-Algeria-1.jpg') no-repeat center center fixed;
+        -webkit-background-size: cover;
+        -moz-background-size: cover;
+        background-size: cover;
+        -o-background-size: cover;
+    }
+
+    .home {
+        position: relative;
+        top: 100px;
+    }
+
+    .arrow-up {
+        width: 0;
+        height: 0;
+        border-left: 17px solid transparent;
+        border-right: 17px solid transparent;
+        border-bottom: 17px solid #aeaeae;
+    }
+
+    .arrow-down {
+        width: 0;
+        height: 0;
+        border-left: 17px solid transparent;
+        border-right: 17px solid transparent;
+        border-top: 17px solid #aeaeae;
+    }
+
+    .text-center {
+        padding-top: 10px;
+        padding-right: 12px;
+        font-size: 23px;
+        font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
+    }
+</style>
+{% endblock %}
 {% block content %}
-<br>
-<br>
-<br>
-<h4>Hello {{name}}</h4>
-{% for key, value in session.items() %}
-<p>{{key}} : {{value}}</p>
-{% endfor %}
+
+
+<div class="container home">
+    <div class="card mb-3">
+        <div class="card-header text-capitalize">
+            <i class="fas fa-table"></i>
+             Students
+             <div class="col-md-4 ml-auto">
+                <select id="selection" name="selection" class="form-control">
+                    <option value="group/{{session['group'][0]}}">My Group</option>
+                    <option value="speciality/{{session['speciality'][0]}}">My Speciality</option>
+                    <option value="department/{{session['department'][0]}}">My Department</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="userTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th style="border: none; width: 70px;"> </th>
+                            <th style="width: 70px;">Picture</th>
+                            <th>Facebook Name</th>
+                            <th>Real Name</th>
+                            <!-- <th>Reputation</th> -->
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th style="border: none; width: 70px;"> </th>
+                            <th style="width: 70px;">Picture</th>
+                            <th>Facebook Name</th>
+                            <th>Real Name</th>
+                            <!-- <th>Reputation</th> -->
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        {% for user in users %}
+                        <tr style="height: 90px;">
+                            <td style="border: none; width: 70px;">
+                                <div class="arrow-up {{user['id']}}"></div>
+                                <p id="score_{{user['id']}}" class="text-center">{{user['score']}}</p>
+                                <div class="arrow-down {{user['id']}}"></div>
+                            </td>
+                            <td style="border: none; width: 70px;"><img style="top:10px;"
+                                    src="http://graph.facebook.com/{{user['fb_info'].split('|')[0]}}/picture?type=square">
+                            </td>
+                            <td style="border: none;">{{user['fb_info'].split('|')[1]}}</td>
+                            <td style="border: none;">{{user['name']}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer small text-muted">Updated yesterday at 11:59 PM</div>
+    </div>
+</div>
+
 {% endblock content %}
+{% block footcontent %}
+<script>
+    $("#selection").change(function() {
+        var value = $("#selection").val().split("/");
+        var id = value[1];
+        var value = value[0];
+        $.ajax({
+            type: "GET",
+            url: "/user/group/item_id".replace("group", value).replace("item_id", id),
+        }).done(function(users) {
+            users = JSON.parse(users);
+            // clear the table first
+            $("#userTable > tbody > tr").remove();
+            $.each(users, function(index, user) {
+                $("#userTable > tbody").append("<tr style='height: 100px;'><td style='border: none; width: 70px;'><div class='arrow-up " + user['id'] + "'></div><p id='score_" + user['id'] + "' class='text-center'>" + user.score + " </p><div class='arrow-down " + user['id'] + "'></div></td><td style='border: none; width: 70px;'><img style='top:10px;'src='http://graph.facebook.com/" + user.fb_info.split("|")[0] + "/picture?type=square'></td><td style='border: none;'>" + user.fb_info.split("|")[1] + "</td><td style='border: none;'>" + user.name + "</td><!-- <td style='border: none;'>Reputation</td> --></tr>")
+            });
+            addEvents();
+        });
+    });
+
+    // below code is for voting
+
+    var NOT_VOTED_COLOR = "rgb(218, 215, 210)";
+    var VOTED_COLOR = "rgb(204, 0, 0)";
+
+    function addVote(element, votedId, action) {
+        var userScore = parseInt($("#score_"+ votedId).text());
+        var fd = new FormData();
+        fd.append("voted_id", votedId);
+        fd.append("action", action);
+        $.ajax({
+            type: "POST",
+            // url: "/user/vote?voted_id=" + votedId + "&action=" + action,
+            url: "{{url_for('user.vote')}}",
+            data: fd,
+            cache: false,
+            processData: false,
+            contentType: false,
+        }).done(function(updatedUserScore) {
+            console.log(updatedUserScore);
+            // change button colors
+            updatedUserScore = parseInt(updatedUserScore);
+            // compare the previous score and updated score
+            if(updatedUserScore > userScore) {
+                changeColor(".arrow-up."+ votedId, VOTED_COLOR, "up");
+                // if up vote is clicked, cancel down vote click and vice-versa
+                changeColor(".arrow-down."+ votedId, NOT_VOTED_COLOR, "down");
+                // update score
+                $("#score_" + votedId).text(updatedUserScore);
+            } else if(updatedUserScore < userScore) {
+                changeColor(".arrow-down." + votedId, VOTED_COLOR, "down");
+                // if down vote is clicked, cancel up vote click and vice-versa
+                changeColor(".arrow-up."+ votedId, NOT_VOTED_COLOR, "up");
+                $("#score_" + votedId).text(updatedUserScore);
+            }
+        });
+    }
+
+    function changeColor(element, color, action) {
+        if(action == "up") {
+            var queryName = "border-bottom-color";
+        } else if(action == "down") {
+            var queryName = "border-top-color";
+        }
+        $(element).css(queryName, color);
+    }
+
+
+    function addEvents() {
+        $(".arrow-up").on("click", function() {
+            var voted_id = $(this).attr("class").split(" ")[1];
+            addVote(this, voted_id, "up");
+        });
+
+        $(".arrow-down").on("click", function() {
+            var voted_id = $(this).attr("class").split(" ")[1];
+            addVote(this, voted_id, "down");
+        });
+
+        // load votes initially from the server
+        $(".arrow-up").add(".arrow-down").each(function(index, value){
+            var voted_id = $(this).attr("class").split(" ")[1];
+            $.ajax({
+                type: "GET",
+                url: "{{url_for('user.vote')}}?voted_id=" + voted_id,
+            }).done(function(action) {
+                if(action != "None") {
+                    if(action == "up" && $(value).attr("class").includes("arrow-up")) {
+                        changeColor(value, VOTED_COLOR, "up");
+                    } else if(action =="down" && $(value).attr("class").includes("arrow-down")) {
+                        changeColor(value, VOTED_COLOR, "down")
+                    }
+                }
+            })
+        });
+    }
+    addEvents();
+
+</script>
+{% endblock %}
