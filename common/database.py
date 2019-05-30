@@ -298,8 +298,8 @@ class Database:
             3. if the previous action is 'up' and new `action` is 'down',
                 insert a new vote and subtract `2*amount` to the `voted_id`'s score
                 and returns the updated score"""
-        # if voter_id == voted_id:
-        #     return "You cannot vote your self."
+        if voter_id == voted_id:
+            return "You cannot vote your self."
         action = action.lower()
         voter = cls.get_user_by_id(voter_id)
         if voter['score'] < MINIMUM_REQUIRED_SCORE:

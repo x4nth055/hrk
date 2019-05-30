@@ -52,15 +52,15 @@ def login_required(f):
 def admin_required(f):
     @wraps(f)
     def decorated_function(*args, **kws):
-        # name = session.get("name")
-        # type = session.get("type").strip()
-        # if name is None:
-        #     # if not logged in, get back from where you came!
-        #     # if the first time, go register
-        #     return redirect_previous_url(default='user.register')
-        # else:
-        #     if type != "admin":
-        #         return redirect_previous_url(default='index')
+        name = session.get("name")
+        type = session.get("type").strip()
+        if name is None:
+            # if not logged in, get back from where you came!
+            # if the first time, go register
+            return redirect_previous_url(default='user.register')
+        else:
+            if type != "admin":
+                return redirect_previous_url(default='index')
         return f(*args, **kws)
     return decorated_function
 

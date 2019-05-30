@@ -59,7 +59,9 @@
                 <select id="selection" name="selection" class="form-control">
                     <option value="group/{{session['group'][0]}}">My Group</option>
                     <option value="speciality/{{session['speciality'][0]}}">My Speciality</option>
-                    <option value="department/{{session['department'][0]}}">My Department</option>
+                    {% if session['type'] == 'moderator' or session['type'] == 'admin' %}
+                        <option value="department/{{session['department'][0]}}">My Department</option>
+                    {% endif %}
                 </select>
             </div>
         </div>
