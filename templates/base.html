@@ -42,7 +42,7 @@
                     <li class="nav-item">
                         <a class="nav-link btn" href="#">Contact</a>
                     </li>
-                    {% if not session.get('facebook_oauth_token') %}
+                    {% if not session.get('name') %}
                     <li class="nav-item active">
                         <a class="btn btn-outline-primary" href="{{url_for('user.login')}}"><span class="fab fa-facebook-f"></span> Login with Facebook</a>
                     </li>

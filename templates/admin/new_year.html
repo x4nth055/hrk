@@ -50,8 +50,9 @@
 {% endblock content %}
 {% block footcontent %}
 <script>
+
     function addEditedSelectionEvent(changedElement, toChangeElement, url) {
-        $(changedElement).change(function() {
+        $(changedElement).on("click", function() {
             var fd = new FormData();
             fd.append("id", $(changedElement).val());
             $.ajax({

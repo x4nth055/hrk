@@ -58,8 +58,9 @@ def new_faculty():
     elif request.method == 'POST':
         university_id = request.form.get("university")
         faculty = request.form.get("faculty")
+        facebook_group_url = request.form.get("facebook-group-url")
         # add faculty to the db
-        add_faculty(faculty, university_id)
+        add_faculty(faculty, university_id, facebook_group_url)
         return render_template("admin/new_university.html", universities=universities, message="Faculty added successfully.")
 
 
@@ -140,7 +141,7 @@ def university():
 def faculty():
     faculties = get_all_faculties(all_fields=True)
     # fields = [ field.lower() for field in Database.FACULTY_FIELDS ]
-    fields = ["Faculty ID", "Faculty Name", "University"]
+    fields = ["Faculty ID", "Faculty Name", "University", "Facebook Group URL"]
     return render_template("admin/items.html", items=faculties, fields=fields, name="faculties", len=len)
 
 

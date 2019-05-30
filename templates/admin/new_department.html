@@ -8,7 +8,7 @@
             <p class="text-success">{{ message }}</h4>
         {% endif %}
         <div class="form-group">
-            <select id="university" name="university" class="form-control">
+            <select id="university" name="university" class="form-control" required="required">
                 <option>Select a university</option>
                 {% for univ_id, univ in universities %}
                 <option value="{{univ_id}}" class="text-capitalize">{{univ}}</option>
@@ -16,7 +16,7 @@
             </select>
         </div>
         <div class="form-group">
-            <select id="faculty" name="faculty" class="form-control">
+            <select id="faculty" name="faculty" class="form-control" required="required">
                 <option>Select a faculty</option>
                 {% for fac_id, fac in faculties %}
                 <option value="{{fac_id}}" class="text-capitalize">{{fac}}</option>
@@ -35,7 +35,7 @@
 {% block footcontent %}
 <script>
     function addEditedSelectionEvent(changedElement, toChangeElement, url) {
-        $(changedElement).change(function() {
+        $(changedElement).on("click", function() {
             var fd = new FormData();
             fd.append("id", $(changedElement).val());
             $.ajax({

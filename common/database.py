@@ -30,13 +30,14 @@ class Database:
     FACULTY_FIELDS = {
         "ID": "VARCHAR UNIQUE",
         "NAME": "VARCHAR",
-        "UNIVERSITY_ID": "VARCHAR"
+        "UNIVERSITY_ID": "VARCHAR",
+        "FACEBOOK_GROUP_URL": "VARCHAR"
     }
 
     DEPARTMENT_FIELDS = {
         "ID": "VARCHAR UNIQUE",
         "NAME": "VARCHAR",
-        "FACULTY_ID": "VARCHAR"
+        "FACULTY_ID": "VARCHAR"        
     }
 
     SPECIALITY_FIELDS = {
@@ -370,9 +371,9 @@ class Database:
     ### Faculty entity ###
     
     @classmethod
-    def add_faculty(cls, name, university_id):
+    def add_faculty(cls, name, university_id, facebook_group_url):
         id = get_unique_id(length=8)
-        cls.DATABASE.execute("INSERT INTO FACULTY VALUES ( ?, ?, ? )", (id, name, university_id))
+        cls.DATABASE.execute("INSERT INTO FACULTY VALUES ( ?, ?, ?, ? )", (id, name, university_id, facebook_group_url))
         cls.DATABASE.commit()
 
     @classmethod
@@ -462,7 +463,8 @@ class Database:
     @classmethod
     def get_all_faculties(cls, all_fields=False):
         if all_fields:
-            cursor = cls.DATABASE.execute("""SELECT FACULTY.ID, FACULTY.NAME, UNIVERSITY.NAME FROM FACULTY, UNIVERSITY
+            cursor = cls.DATABASE.execute("""SELECT FACULTY.ID, FACULTY.NAME, UNIVERSITY.NAME, FACULTY.FACEBOOK_GROUP_URL
+                                            FROM FACULTY, UNIVERSITY
                                             WHERE UNIVERSITY.ID = FACULTY.UNIVERSITY_ID""")
         else:
             cursor = cls.DATABASE.execute("SELECT ID, NAME FROM FACULTY")
