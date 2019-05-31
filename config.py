@@ -7,3 +7,6 @@ NORMAL_VOTE_AMOUNT = 1
 
 # minimum score required to vote
 MINIMUM_REQUIRED_SCORE = 2
+
+# the user is deleted when his/her score reaches below value
+SCORE_TO_DELETE = -5

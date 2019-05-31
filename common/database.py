@@ -1,6 +1,7 @@
 import sqlite3
 from common.utils import get_query, get_unique_id
 from config import ADMIN_VOTE_AMOUNT, MODERATOR_VOTE_AMOUNT, NORMAL_VOTE_AMOUNT, MINIMUM_REQUIRED_SCORE
+from config import SCORE_TO_DELETE
 
 class Database:
     URL = "db/db.sqlite3"
@@ -181,7 +182,7 @@ class Database:
 
     @classmethod
     def _get_users_by(cls, key, value, formalize=True):
-        cursor = cls.DATABASE.execute(f"SELECT * FROM USER WHERE {key}=?", (value,))
+        cursor = cls.DATABASE.execute(f"SELECT * FROM USER WHERE {key}=? ORDER BY SCORE DESC ", (value,))
         returned_data = cursor.fetchall()
         if not formalize:
             return returned_data
@@ -300,6 +301,7 @@ class Database:
                 and returns the updated score"""
         if voter_id == voted_id:
             return "You cannot vote your self."
+        score = None
         action = action.lower()
         voter = cls.get_user_by_id(voter_id)
         if voter['score'] < MINIMUM_REQUIRED_SCORE:
@@ -321,7 +323,12 @@ class Database:
                 cls.add_user_score(voted_id, amount)
             elif action == "down":
                 cls.add_user_score(voted_id, -amount)
-            return cls.get_user_by_id(voted_id)['score']
+                score = cls.get_user_by_id(voted_id)['score']
+                if score <= SCORE_TO_DELETE:
+                    # if score is below -5 or so, delete the user
+                    cls.delete_user(voted_id)
+
+            return score if score else cls.get_user_by_id(voted_id)['score']
         else:
             existing_action = existing_action[0].lower()
             if existing_action == action:
@@ -337,7 +344,11 @@ class Database:
                 else:
                     # existing_action = "up" and new_action = "down"
                     cls.add_user_score(voted_id, -2*amount)
-                return cls.get_user_by_id(voted_id)['score']
+                    score = cls.get_user_by_id(voted_id)['score']
+                    if score <= SCORE_TO_DELETE:
+                        # if score is below -5 or so, delete the user
+                        cls.delete_user(voted_id)
+                return score if score else cls.get_user_by_id(voted_id)['score']
 
 
     ## Utilities
