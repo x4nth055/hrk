@@ -384,6 +384,10 @@ class Database:
     def get_faculty_name(cls, id):
         return cls._get_name("FACULTY", id)
 
+    @classmethod
+    def get_faculty_fbgroup(cls, id):
+        return cls.DATABASE.execute("SELECT FACEBOOK_GROUP_URL FROM FACULTY WHERE FACULTY.ID = ?", (id,)).fetchone()
+
     ### Department entity ###
 
     @classmethod

@@ -40,6 +40,10 @@
         font-size: 23px;
         font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif
     }
+
+    .text-info {
+        margin-top: 10px;
+    }
 </style>
 {% endblock %}
 {% block content %}
@@ -49,13 +53,31 @@
     <a class="btn btn-danger" href="#" rel="modal:close">Close</a>
 </div>
 
+<div id="join-modal" class="modal">
+    <h5>Facebook Group</h5>
+    <p class="text-info">Please request to join the facebook group for your faculty.</p>
+    <a href="{{facebook_group_url[0]}}" class="btn btn-success" target="_blank" rel="noopener noreferrer" >Join</a>
+    <a class="btn btn-danger" href="#" rel="modal:close">Close</a>
+</div>
+
 
 <div class="container home">
     <div class="card mb-3">
-        <div class="card-header text-capitalize">
+        <div class="card-header">
             <i class="fas fa-table"></i>
-             Students
-             <div class="col-md-4 ml-auto">
+            Students  
+            <br>
+            <br>
+            <div class="row">
+                <div class="col-sm-6">
+                    <b class="text-info">Please request to join the facebook group for your faculty</b>
+                </div>
+                <div class="col-sm-3">
+                    {% if facebook_group_url %}
+                    <a href="{{facebook_group_url[0]}}" target="_blank" rel="noopener noreferrer" class="btn btn-success">Join Facebook Group</a>
+                    {% endif %}
+                </div>
+                <div class="col-sm-3 ml-auto">
                 <select id="selection" name="selection" class="form-control">
                     <option value="group/{{session['group'][0]}}">My Group</option>
                     <option value="speciality/{{session['speciality'][0]}}">My Speciality</option>
@@ -64,6 +86,7 @@
                     {% endif %}
                 </select>
             </div>
+        </div> 
         </div>
         
         <div class="card-body">
@@ -230,6 +253,9 @@
         });
     }
     addEvents();
+    $(document).ready(function() {
+        $("#join-modal").modal({fadeDuration: 100});
+    })
 
 </script>
 {% endblock %}

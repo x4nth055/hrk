@@ -36,7 +36,8 @@ def index():
     _save_user_info(user)
     users = Database.get_users_by_group(session['group'][0])
     facebook_user_id = session['fb_info'].split("|")[0]
-    return render_template("index.html", users=users, facebook_user_id=facebook_user_id)
+    facebook_group_url = Database.get_faculty_fbgroup(session['faculty'][0])
+    return render_template("index.html", users=users, facebook_user_id=facebook_user_id, facebook_group_url=facebook_group_url)
 
 
 @app.route("/profile")
@@ -50,5 +51,4 @@ def profile():
 
 
 
-port = int(os.environ.get('PORT', 5000))
-app.run(host='0.0.0.0', port=port)
+app.run(port=3001, debug=True)

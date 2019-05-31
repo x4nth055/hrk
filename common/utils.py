@@ -36,7 +36,6 @@ def redirect_previous_url(default='home'):
     return redirect(request.args.get('next') or request.referrer or url_for(default))
 
 
-
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kws):
