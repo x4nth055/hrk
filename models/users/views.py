@@ -167,6 +167,30 @@ def vote():
             return "None"
         return action[0]
 
+@user_blueprint.route("/voters")
+@utils.login_required
+def voters():
+    my_voters = Database.get_user_voters(session['id'], get_usernames=True)
+    # get not viewed votes
+    # convert voter_id to facebook user names by setting get_usernames to True
+    not_viewed_voters = Database.get_not_viewed_voters(session['id'], get_usernames=True)
+    # set votes to viewed
+    Database.view_vote(session['id'])
+    return render_template("votes.html", votes=my_voters, not_viewed_voters=not_viewed_voters,
+                            len=len, relative_date=utils.pretty_date, who="My Voters", voters=my_voters)
+
+@user_blueprint.route("/votes")
+@utils.login_required
+def votes():
+    my_votes = Database.get_user_votes(session['id'], get_usernames=True)
+    voters = Database.get_user_voters(session['id'], get_usernames=True)
+    # get not viewed votes
+    # convert voter_id to facebook user names by setting get_usernames to True
+    not_viewed_voters = Database.get_not_viewed_voters(session['id'], get_usernames=True)
+    return render_template("votes.html", votes=my_votes, not_viewed_voters=not_viewed_voters,
+                            len=len, relative_date=utils.pretty_date, who="My Votes", voters=voters)
+
+
 
 
 @user_blueprint.route("/group/<id>")

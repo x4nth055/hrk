@@ -37,7 +37,14 @@ def index():
     users = Database.get_users_by_group(session['group'][0])
     facebook_user_id = session['fb_info'].split("|")[0]
     facebook_group_url = Database.get_faculty_fbgroup(session['faculty'][0])
-    return render_template("index.html", users=users, facebook_user_id=facebook_user_id, facebook_group_url=facebook_group_url)
+
+    # get not viewed votes
+    # convert voter_id to facebook user names by setting get_usernames to True
+    not_viewed_voters = Database.get_not_viewed_voters(session['id'], get_usernames=True)
+    voters = Database.get_user_voters(session['id'], get_usernames=True)
+    return render_template("index.html", users=users, facebook_user_id=facebook_user_id,
+                            facebook_group_url=facebook_group_url, not_viewed_voters=not_viewed_voters,
+                            len=len, voters=voters)
 
 
 @app.route("/profile")
@@ -46,7 +53,12 @@ def profile():
     json = facebook.get("/me").json()
     user_id = json['id']
     name = json['name']
-    return render_template("profile.html", name=name, facebook_user_id=user_id)
+    # get not viewed votes
+    # convert voter_id to facebook user names by setting get_usernames to True
+    not_viewed_voters = Database.get_not_viewed_voters(session['id'], get_usernames=True)
+    voters = Database.get_user_voters(session['id'], get_usernames=True)
+    return render_template("profile.html", name=name, facebook_user_id=user_id, not_viewed_voters=not_viewed_voters,
+                                len=len, voters=voters)
 
 
 

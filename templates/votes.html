@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+
+<br>
+<br>
+<br>
+<div class="container">
+    <div class="card mb-3">
+        <div class="card-header">
+            <i class="fas fa-table"></i>
+            {{who}}
+        </div>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="userTable" width="100%" cellspacing="0">
+                <tbody>
+                    {% for vote in votes %}
+                    <tr>
+                        {% if who == 'My Voters' %}
+                            <td style="border: none;">{{vote['id']}} {{vote['action']}}voted you</td>
+                        {% elif who == 'My Votes' %}
+                            <td style="border: none;">You {{vote['action']}}voted {{vote['id']}}</td>
+                        {% endif %}
+                        <td style="border: none;">{{relative_date(vote['voted_at'])}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card-footer small text-muted">Updated {{relative_date(votes[0]['voted_at'])}}</div>
+</div>
+</div>
+
+{% endblock content %}

@@ -3,8 +3,12 @@
 <br>
 <br>
 <br>
-<h4>Hello {{name}}</h4>
-{% for key, value in session.items() %}
-<p>{{key}} : {{value}}</p>
-{% endfor %}
+<h5>Real Name: {{session['name']}}</h5>
+<p>Facebook Name: {{name}}</p>
+<p>University: {{session['university'][1]}}</p>
+<p>Faculty: {{session['faculty'][1]}}</p>
+<p>Department: {{session['department'][1]}}</p>
+<p>Year: {{session['year'][1]}}</p>
+<p>Speciality: {{session['speciality'][1]}}</p>
+<p>Group: {{session['group'][1]}}</p>
 {% endblock content %}

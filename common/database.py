@@ -63,6 +63,8 @@ class Database:
         "VOTER_ID": "VARCHAR",
         "VOTED_ID": "VARCHAR",
         "ACTION": "VARCHAR",
+        "VIEWED": "INTEGER",
+        "VOTED_AT": "DATETIME DEFAULT CURRENT_TIMESTAMP",
         "PRIMARY KEY": "(VOTER_ID, VOTED_ID)"
     }
 
@@ -269,12 +271,34 @@ class Database:
     ### Vote entity ###
     
     @classmethod
-    def get_user_votes(cls, voter_id):
-        return [ v[0] for v in cls.DATABASE.execute("SELECT VOTED_ID FROM VOTE WHERE VOTER_ID = ?", (voter_id,)).fetchall() ]
+    def get_user_votes(cls, voter_id, get_usernames=False):
+        cursor = cls.DATABASE.execute("SELECT VOTED_ID, ACTION, VOTED_AT FROM VOTE WHERE VOTER_ID = ? ORDER BY VOTED_AT DESC", (voter_id,))
+        returned_data = cursor.fetchall()
+        data = []
+        for item in returned_data:
+            d = {}
+            for i, field in enumerate(["id", "action", "voted_at"]):
+                if i == 0 and get_usernames:
+                    d[field] = cls.get_user_by_id(item[i])['fb_info'].split("|")[1]
+                    continue
+                d[field.lower()] = item[i]
+            data.append(d)
+        return data
 
     @classmethod
-    def get_user_voters(cls, voted_id):
-        return [ v[0] for v in cls.DATABASE.execute("SELECT VOTER_ID FROM VOTE WHERE VOTED_ID = ?", (voted_id,)).fetchall() ]
+    def get_user_voters(cls, voted_id, get_usernames=False):
+        cursor = cls.DATABASE.execute("SELECT VOTER_ID, ACTION, VOTED_AT FROM VOTE WHERE VOTED_ID = ? ORDER BY VOTED_AT DESC", (voted_id,))
+        returned_data = cursor.fetchall()
+        data = []
+        for item in returned_data:
+            d = {}
+            for i, field in enumerate(["id", "action", "voted_at"]):
+                if i == 0 and get_usernames:
+                    d[field] = cls.get_user_by_id(item[i])['fb_info'].split("|")[1]
+                    continue
+                d[field.lower()] = item[i]
+            data.append(d)
+        return data
 
     @classmethod
     def get_vote_action(cls, voter_id, voted_id):
@@ -284,6 +308,35 @@ class Database:
     def delete_vote(cls, voter_id, voted_id):
         cls.DATABASE.execute("DELETE FROM VOTE WHERE VOTER_ID = ? AND VOTED_ID = ?", (voter_id, voted_id))
         cls.DATABASE.commit()
+
+    @classmethod
+    def view_vote(cls, voted_id):
+        """Views all the votes for `voted_id` ( set all the rows VIEWED = 1 )
+        This function is useful when removing user notifications"""
+        cls.DATABASE.execute("UPDATE VOTE SET VIEWED = 1 WHERE VOTED_ID = ?", (voted_id,))
+        cls.DATABASE.commit()
+
+    @classmethod
+    def get_not_viewed_voters(cls, voted_id, get_usernames=False):
+        """This function returns all non-viewed votes ( i.e where VIEWED = 0 )"""
+        cursor = cls.DATABASE.execute("SELECT * FROM VOTE WHERE VOTED_ID = ? AND VIEWED = 0 ORDER BY VOTED_AT DESC", (voted_id,))
+        returned_data = cursor.fetchall()
+        data = []
+        for item in returned_data:
+            d = {}
+            for i, field in enumerate(['voter_id', 'voted_id', 'action', 'viewed', 'voted_at']):
+                if i == 0 and get_usernames:
+                    user = cls.get_user_by_id(item[i])
+                    print(user)
+                    user_name = user['fb_info']
+                    print(user_name) 
+                    d[field.lower()] = user_name.split("|")[1]
+                    continue
+                print(d)
+                d[field.lower()] = item[i]
+            data.append(d)
+        return data
+        
 
     @classmethod
     def add_vote(cls, voter_id, voted_id, action):
@@ -317,8 +370,14 @@ class Database:
         # get previous vote if available
         existing_action = cls.get_vote_action(voter_id, voted_id)
         if existing_action is None:
+        #     "VOTER_ID": "VARCHAR",
+            # "VOTED_ID": "VARCHAR",
+            # "ACTION": "VARCHAR",
+            # "VIEWED": "VARCHAR",
+            # "VOTED_AT": "DATETIME DEFAULT CURRENT_TIMESTAMP",
+            # "PRIMARY KEY": "(VOTER_ID, VOTED_ID)"
             # no existing action before
-            cls.DATABASE.execute("INSERT INTO VOTE VALUES ( ?, ?, ? )", (voter_id, voted_id, action))
+            cls.DATABASE.execute("INSERT INTO VOTE (VOTER_ID, VOTED_ID, ACTION, VIEWED ) VALUES ( ?, ?, ?, 0 )", (voter_id, voted_id, action))
             if action == "up":
                 cls.add_user_score(voted_id, amount)
             elif action == "down":
@@ -338,7 +397,7 @@ class Database:
                 # delete previous vote
                 cls.delete_vote(voter_id, voted_id)
                 # insert new vote
-                cls.DATABASE.execute("INSERT INTO VOTE VALUES ( ?, ?, ? )", (voter_id, voted_id, action))
+                cls.DATABASE.execute("INSERT INTO VOTE (VOTER_ID, VOTED_ID, ACTION, VIEWED ) VALUES ( ?, ?, ?, 0 )", (voter_id, voted_id, action))
                 if existing_action == "down" and action == "up":
                     cls.add_user_score(voted_id, 2*amount)
                 else:
