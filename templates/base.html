@@ -40,7 +40,8 @@
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link btn" href="#">Contact</a>
+                        
+                        <a class="nav-link btn" href="{{url_for('profile')}}"><span class="fas fa-user"></span> Profile</a>
                     </li>
                     {% if not session.get('name') %}
                     <li class="nav-item active">
@@ -67,7 +68,7 @@
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="{{url_for('user.votes')}}">My Votes</a>
                         <div class="dropdown-divider"></div>
-                        <a class="dropdown-item" href="{{url_for('profile')}}">My Info</a>
+                        <a class="dropdown-item" href="{{url_for('profile')}}">Profile</a>
                         </div>
                     </li>
                     

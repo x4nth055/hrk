@@ -1,5 +1,5 @@
 import sqlite3
-from common.utils import get_query, get_unique_id
+from common.db_utils import get_query, get_unique_id
 from config import ADMIN_VOTE_AMOUNT, MODERATOR_VOTE_AMOUNT, NORMAL_VOTE_AMOUNT, MINIMUM_REQUIRED_SCORE
 from config import SCORE_TO_DELETE
 
@@ -122,19 +122,35 @@ class Database:
         return True
 
     @classmethod
-    def edit_user(cls, id, **kwargs):
+    def edit_user(cls, id, commit=True, **kwargs):
         query = "UPDATE USER SET"
         parameters = []
         for field, value in kwargs.items():
+            field = field.replace("group", "groupe")
             if field not in [ f.lower() for f in cls.USER_FIELDS ]:
                 raise TypeError("Table Column not found:" + field)
+            if field == "university" and value is not None:
+                # if university is edited, set FACULTY, DEPARTMENT,
+                # YEAR, SPECIALITY, GROUP to NULL
+                cls.edit_user(id, commit=False, faculty=None, department=None, year=None, speciality=None, group=None)
+            elif field == "faculty" and value is not None:
+                # if university is edited, set DEPARTMENT, YEAR
+                # SPECIALITY, GROUP to NULL
+                cls.edit_user(id, commit=False, department=None, year=None, speciality=None, group=None)
+            elif field == "department" and value is not None:
+                cls.edit_user(id, commit=False, speciality=None, year=None, group=None)
+            elif field == "speciality" and value is not None:
+                cls.edit_user(id, commit=False, year=None, group=None)
+            elif field == "year" and value is not None:
+                cls.edit_user(id, commit=False, group=None)
             query += f" {field} = ?,"
             parameters.append(value)
         query = query.rstrip(",")
         query += " WHERE ID=?"
         parameters.append(id)
         cls.DATABASE.execute(query, parameters)
-        cls.DATABASE.commit()
+        if commit:
+            cls.DATABASE.commit()
         return True
 
     @classmethod
@@ -279,7 +295,10 @@ class Database:
             d = {}
             for i, field in enumerate(["id", "action", "voted_at"]):
                 if i == 0 and get_usernames:
-                    d[field] = cls.get_user_by_id(item[i])['fb_info'].split("|")[1]
+                    try:
+                        d[field] = cls.get_user_by_id(item[i])['fb_info'].split("|")[1]
+                    except TypeError as e:
+                        d[field.lower()] = item[i]
                     continue
                 d[field.lower()] = item[i]
             data.append(d)
@@ -327,12 +346,9 @@ class Database:
             for i, field in enumerate(['voter_id', 'voted_id', 'action', 'viewed', 'voted_at']):
                 if i == 0 and get_usernames:
                     user = cls.get_user_by_id(item[i])
-                    print(user)
                     user_name = user['fb_info']
-                    print(user_name) 
                     d[field.lower()] = user_name.split("|")[1]
                     continue
-                print(d)
                 d[field.lower()] = item[i]
             data.append(d)
         return data
@@ -419,7 +435,8 @@ class Database:
 
     @classmethod
     def _get_name(cls, class_name, id):
-        return cls.DATABASE.execute(f"SELECT NAME FROM {class_name.upper()} WHERE ID = ?", (id,)).fetchone()[0]
+        name = cls.DATABASE.execute(f"SELECT NAME FROM {class_name.upper()} WHERE ID = ?", (id,)).fetchone()
+        return name[0] if name else None
 
     ### Univerity entity ###
 

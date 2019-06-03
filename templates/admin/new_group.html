@@ -57,38 +57,11 @@
 </div>
 {% endblock content %}
 {% block footcontent %}
+<script src="{{url_for('static', filename='js/script.js')}}"></script>
 <script>
-    function addEditedSelectionEvent(changedElement, toChangeElement, url) {
-        $(changedElement).on("click", function() {
-            var fd = new FormData();
-            fd.append("id", $(changedElement).val());
-            $.ajax({
-                type: "POST",
-                url: url,
-                cache: false,
-                processData: false,
-                contentType: false,
-                data: fd
-            }).done(function(data) {
-                // clear previous options
-                $(toChangeElement + " option").remove();
-                data = data.split("|");
-                $.each(data, function(index, value) {
-                    // Faculté Des nouvelles technologies de l'information et de la communication
-                    var item = value.split("__");
-                    var id = item[0];
-                    var name = item[1];
-                    var option = new Option(name, id);
-                    $(option).html(name);
-                    $(toChangeElement).append(option);
-                });
-            });
-        });
-    }
-
-    addEditedSelectionEvent("#university", "#faculty", "{{url_for('admin.faculties')}}");
-    addEditedSelectionEvent("#faculty", "#department", "{{url_for('admin.departments')}}");
-    addEditedSelectionEvent("#department", "#speciality", "{{url_for('admin.specialities')}}");
-    addEditedSelectionEvent("#speciality", "#year", "{{url_for('admin.years')}}");
+    addEditedSelectionEvent("#university", "#faculty", "{{url_for('faculty')}}");
+    addEditedSelectionEvent("#faculty", "#department", "{{url_for('department')}}");
+    addEditedSelectionEvent("#department", "#speciality", "{{url_for('speciality')}}");
+    addEditedSelectionEvent("#speciality", "#year", "{{url_for('year')}}");
 </script>
 {% endblock footcontent %}

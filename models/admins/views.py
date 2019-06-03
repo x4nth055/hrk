@@ -180,32 +180,7 @@ def group():
     fields = ["Group ID", "Group Number", "Year", "Speciality", "Department", "Faculty", "University"]
     return render_template("admin/items.html", items=groups, name="groups", fields=fields, len=len)
 
-## Below are for AJAX calls
 
-@admin_blueprint.route("fac", methods=['POST'])
-@admin_required
-def faculties():
-    return get_items_from_ajax(get_faculties)
-
-@admin_blueprint.route("dep", methods=['POST'])
-@admin_required
-def departments():
-    return get_items_from_ajax(get_departments)
-
-@admin_blueprint.route("spec", methods=['POST'])
-@admin_required
-def specialities():
-    return get_items_from_ajax(get_specialities)
-
-@admin_blueprint.route("year", methods=['POST'])
-@admin_required
-def years():
-    return get_items_from_ajax(get_years)
-
-@admin_blueprint.route("group", methods=['POST'])
-@admin_required
-def groups():
-    return get_items_from_ajax(get_groups)
 
 ## Item Deletions
 

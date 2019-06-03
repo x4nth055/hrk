@@ -16,42 +16,6 @@ get_groups = Database.get_groups
 
 user_blueprint = Blueprint("user", __name__)
 
-# some utilities
-
-def _get_user_info():
-    """Gets user's info from facebook, then query db to extract various fields."""
-    # get facebook account info
-    json = facebook.get("/me").json()
-    user_id = json['id']
-    name = json['name']
-    fb_info = user_id + "|" + name
-
-    # some logging
-    date_now = time.strftime("%Y-%m-%d")
-    time_now = time.strftime("%Y-%m-%d_%H%M%S")
-    print(f"[*] {time_now} -", fb_info, "logged", file=open(f"logs/{date_now}.log", "a"))
-    print(f"[*] {time_now} -", fb_info, "logged")
-
-    user = Database.get_user_by_fb_info(fb_info)
-    return user
-    
-
-def _save_user_info(user):
-    """Saves user fields into the session"""
-    user = User(**user)
-    session['id'] = user.id
-    session['name'] = user.name
-    session['fb_info'] = user.fb_info
-    session['university'] = (user.university, Database.get_university_name(user.university))
-    session['faculty'] = (user.faculty, Database.get_faculty_name(user.faculty))
-    session['department'] = (user.department, Database.get_department_name(user.department))
-    session['speciality'] = (user.speciality, Database.get_speciality_name(user.speciality))
-    session['year'] = (user.year, Database.get_year_name(user.year))
-    session['group'] = (user.group, Database.get_group_name(user.group))
-    session['type'] = user.type
-    session['score'] = user.score
-
-
 
 @user_blueprint.route("/register", methods=["POST", "GET"])
 @utils.not_logged_in_required
@@ -134,12 +98,12 @@ def login():
     if not facebook.authorized:
         return redirect(url_for("facebook.login"))
     # get facebook account info
-    user = _get_user_info()
+    user = utils._get_user_info()
     if not user:
         # not registered in database, redirect to register
         return redirect(url_for("user.register"))
 
-    _save_user_info(user)
+    utils._save_user_info(user)
 
     return redirect(url_for("index"))
 
@@ -152,17 +116,17 @@ def logout():
 
 
 @user_blueprint.route("/vote", methods=['GET', 'POST'])
-@utils.login_required
+# @utils.login_required
 def vote():
     if request.method == 'POST':
         # add new vote
         voted_id = request.form.get("voted_id")
         action = request.form.get("action")
-        score = str(Database.add_vote(voter_id=session['id'], voted_id=voted_id, action=action))
+        score = str(Database.add_vote(voter_id=session.get('id'), voted_id=voted_id, action=action))
         return score
     elif request.method == "GET":
         voted_id = request.args.get("voted_id")
-        action = Database.get_vote_action(session['id'], voted_id)
+        action = Database.get_vote_action(session.get('id'), voted_id)
         if action is None:
             return "None"
         return action[0]
@@ -190,6 +154,15 @@ def votes():
     return render_template("votes.html", votes=my_votes, not_viewed_voters=not_viewed_voters,
                             len=len, relative_date=utils.pretty_date, who="My Votes", voters=voters)
 
+
+@user_blueprint.route("edit", methods=['POST'])
+@utils.login_required
+def edit():
+    id = session['id']
+    to_edit = request.form.get("to_edit")
+    new_value = request.form.get(f"{to_edit}-selection")
+    Database.edit_user(id, **{to_edit: new_value})
+    return utils.redirect_previous_url(default="index")
 
 
 

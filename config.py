@@ -12,3 +12,6 @@ MINIMUM_REQUIRED_SCORE = 2
 
 # the user is deleted when his/her score reaches below value
 SCORE_TO_DELETE = -5
+
+# the minimum score to make personal user information unchangeable
+MINIMUM_UNCHANGEABLE_SCORE = 2

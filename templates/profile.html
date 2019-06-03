@@ -3,12 +3,257 @@
 <br>
 <br>
 <br>
-<h5>Real Name: {{session['name']}}</h5>
-<p>Facebook Name: {{name}}</p>
-<p>University: {{session['university'][1]}}</p>
-<p>Faculty: {{session['faculty'][1]}}</p>
-<p>Department: {{session['department'][1]}}</p>
-<p>Year: {{session['year'][1]}}</p>
-<p>Speciality: {{session['speciality'][1]}}</p>
-<p>Group: {{session['group'][1]}}</p>
+<div class="container">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="card-title mb-4">
+                        <div class="d-flex justify-content-start">
+                            <div class="image-container">
+                                <img src="http://graph.facebook.com/{{session['fb_info'].split('|')[0]}}/picture?type=square"
+                                    id="imgProfile" style="width: 150px; height: 150px" class="img-thumbnail" />
+                            </div>
+                            <div class="userData ml-3">
+                                <h2 class="d-block" style="font-size: 1.5rem; font-weight: bold">
+                                    {{session['fb_info'].split("|")[1]}}</h2>
+                                <h6 class="d-block"><a href="{{url_for('user.voters')}}">{{len(voters)}}</a> Voters</h6>
+                                <h6 class="d-block"><a href="{{url_for('user.votes')}}">{{len(votes)}}</a> Votes</h6>
+                            </div>
+                            <div class="ml-auto">
+                                <input type="button" class="btn btn-primary d-none" id="btnDiscard"
+                                    value="Discard Changes" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="basicInfo-tab" data-toggle="tab" href="#basicInfo"
+                                        role="tab" aria-controls="basicInfo" aria-selected="true">Basic Information</a>
+                                </li>
+                            </ul>
+                            <div class="tab-content ml-1" id="myTabContent">
+                                <div class="tab-pane fade show active" id="basicInfo" role="tabpanel"
+                                    aria-labelledby="basicInfo-tab">
+                                    <div class="row">
+                                        <div class="col-sm-3 col-md-2 col-5">
+                                            <label style="font-weight:bold;">Full Name</label>
+                                        </div>
+                                        <div class="col-md-8 col-6" id="name-value">
+                                            {{session['name']}}
+                                        </div>
+                                        <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
+                                            <div class="col-md-8 col-6 selection-div" id="name-selection-div">
+                                                <!-- <select class="form-control" name="name-selection" id="name-selection">
+                                                    <option>Select an option man</option>
+                                                </select> -->
+                                                <input type="text" value="{{session['name']}}" name="name-selection" id="name-selection" class="form-control">
+                                                <input type="hidden" name="to_edit" value="name">
+                                            </div>
+                                            <button type="submit" class="btn btn-success submit-btn ml-auto" id="submit-name">Submit</button>
+                                        </form>
+                                        <input type="button" class="btn btn-secondary change-btn" id="change-name"
+                                            value="Change" />
+
+                                    </div>
+                                    <hr />
+
+                                    <div class="row">
+                                        <div class="col-sm-3 col-md-2 col-5">
+                                            <label style="font-weight:bold;">University</label>
+                                        </div>
+                                        <div class="col-md-8 col-6" id="university-value">
+                                            {{session['university'][1]}}
+                                        </div>
+                                        <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
+                                            <div class="col-md-8 col-6 selection-div" id="university-selection-div">
+                                                <select class="form-control" data-university="{{session['university'][0]}}" name="university-selection"
+                                                    id="university-selection">
+                                                    <option>Select an option man</option>
+                                                </select>
+                                                <input type="hidden" name="to_edit" value="university">
+                                            </div>
+                                            <button type="submit" class="btn btn-success submit-btn ml-auto"
+                                                id="submit-university">Submit</button>
+                                        </form>
+                                        <input type="button" class="btn btn-secondary change-btn" id="change-university"
+                                            value="Change" />
+
+                                    </div>
+                                    <hr />
+                                    <div class="row">
+                                        <div class="col-sm-3 col-md-2 col-5">
+                                            <label style="font-weight:bold;">Faculty</label>
+                                        </div>
+                                        <div class="col-md-8 col-6" id="faculty-value">
+                                            {{session['faculty'][1]}}
+                                        </div>
+                                        <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
+                                            <div class="col-md-8 col-6 selection-div" id="faculty-selection-div">
+                                                <select class="form-control" data-faculty="{{session['university'][0]}}" name="faculty-selection"
+                                                    id="faculty-selection">
+                                                    <option>Select an option man</option>
+                                                </select>
+                                                <input type="hidden" name="to_edit" value="faculty">
+                                            </div>
+
+                                            <button type="submit" class="btn btn-success submit-btn ml-auto" id="submit-faculty">Submit</button>
+                                        </form>
+                                        <input type="button" class="btn btn-secondary change-btn" id="change-faculty"
+                                            value="Change" />
+                                    </div>
+                                    <hr />
+                                    <div class="row">
+                                        <div class="col-sm-3 col-md-2 col-5">
+                                            <label style="font-weight:bold;">Department</label>
+                                        </div>
+                                        <div class="col-md-8 col-6" id="department-value">
+                                            {{session['department'][1]}}
+                                        </div>
+                                        <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
+                                            <div class="col-md-8 col-6 selection-div" id="department-selection-div">
+                                                <select class="form-control" data-department="{{session['faculty'][0]}}" name="department-selection"
+                                                    id="department-selection">
+                                                    <option>Select an option man</option>
+                                                </select>
+                                                <input type="hidden" name="to_edit" value="department">
+                                            </div>
+
+                                            <button type="submit" class="btn btn-success submit-btn ml-auto" id="submit-department">Submit</button>
+                                        </form>
+                                        <input type="button" class="btn btn-secondary change-btn" id="change-department"
+                                            value="Change" />
+                                    </div>
+                                    <hr />
+                                    <div class="row">
+                                        <div class="col-sm-3 col-md-2 col-5">
+                                            <label style="font-weight:bold;">Speciality</label>
+                                        </div>
+                                        <div class="col-md-8 col-6" id="speciality-value">
+                                            {{session['speciality'][1]}}
+                                        </div>
+                                        <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
+                                            <div class="col-md-8 col-6 selection-div" id="speciality-selection-div">
+                                                <select class="form-control" data-speciality="{{session['department'][0]}}" name="speciality-selection"
+                                                    id="speciality-selection">
+                                                    <option>Select an option man</option>
+                                                </select>
+                                                <input type="hidden" name="to_edit" value="speciality">
+                                            </div>
+
+                                            <button type="submit" class="btn btn-success submit-btn ml-auto" id="submit-speciality">Submit</button>
+                                        </form>
+                                        <input type="button" class="btn btn-secondary change-btn" id="change-speciality"
+                                            value="Change" />
+                                    </div>
+                                    <hr />
+                                    <div class="row">
+                                            <div class="col-sm-3 col-md-2 col-5">
+                                                <label style="font-weight:bold;">Year</label>
+                                            </div>
+                                            <div class="col-md-8 col-6" id="year-value">
+                                                {{session['year'][1]}}
+                                            </div>
+                                            <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
+                                                <div class="col-md-8 col-6 selection-div" id="year-selection-div">
+                                                    <select class="form-control" data-year="{{session['speciality'][0]}}" name="year-selection" id="year-selection">
+                                                        <option>Select an option man</option>
+                                                    </select>
+                                                    <input type="hidden" name="to_edit" value="year">
+                                                </div>
+    
+                                                <button type="submit" class="btn btn-success submit-btn ml-auto" id="submit-year">Submit</button>
+                                            </form>
+                                            <input type="button" class="btn btn-secondary change-btn" id="change-year"
+                                                value="Change" />
+                                        </div>
+                                        <hr />
+                                    <div class="row">
+                                        <div class="col-sm-3 col-md-2 col-5">
+                                            <label style="font-weight:bold;">Group</label>
+                                        </div>
+                                        <div class="col-md-8 col-6" id="group-value">
+                                            {{session['group'][1]}}
+                                        </div>
+                                        <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
+                                            <div class="col-md-8 col-6 selection-div" id="group-selection-div">
+                                                <select class="form-control" data-group="{{session['year'][0]}}" name="group-selection"
+                                                    id="group-selection">
+                                                    <option>Select an option man</option>
+                                                </select>
+                                                <input type="hidden" name="to_edit" value="group">
+                                            </div>
+                                            <button type="submit" class="btn btn-success submit-btn ml-auto" id="submit-group">Submit</button>
+                                        </form>
+                                        <input type="button" class="btn btn-secondary change-btn" id="change-group"
+                                            value="Change" />
+                                    </div>
+                                    <hr />
+                                    <div class="row">
+                                        <div class="col-sm-3 col-md-2 col-5">
+                                            <label style="font-weight:bold;">Score</label>
+                                        </div>
+                                        <div class="col-md-8 col-6">
+                                            {{session['score']}}
+                                        </div>
+                                    </div>
+                                    <hr />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}
+{% block footcontent %}
+<script>
+
+    $(".submit-btn").hide();
+    $(".selection-div").hide();
+
+    $(".change-btn").on("click", function () {
+        var item = $(this).attr("id").split("-")[1];
+        // hide change button
+        $("#change-" + item).hide();
+        // hide the actual value
+        $("#" + item + "-value").hide();
+        // show submit button
+        $("#submit-" + item).show();
+        // add options to selection & show it
+        if(item != "name") {
+            selectionITem = "#" + item + "-selection";
+            
+            var fd = new FormData();
+            fd.append("id", $(selectionITem).data(item));
+            $.ajax({
+                url: "/" + item,
+                type: "POST",
+                cache: false,
+                processData: false,
+                contentType: false,
+                data: fd
+            }).done(function(data) {
+                // clear previous options
+                $(selectionITem + " option").remove();
+                data = JSON.parse(data);
+                $.each(data, function(index, value) {
+                    var id = value[0];
+                    var name = value[1];
+                    var option = new Option(name, id);
+                    $(option).html(name);
+                    $(selectionITem).append(option);
+                })
+                $("#" + item + "-selection-div").show();
+            });
+        } else {
+            $("#" + item + "-selection-div").show();
+        }
+    })
+
+</script>
+{% endblock footcontent %}
