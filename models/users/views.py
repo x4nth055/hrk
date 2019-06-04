@@ -2,6 +2,7 @@ from flask import Blueprint, render_template, request, session, redirect, url_fo
 from models.users.user import User
 from flask_dance.contrib.facebook import make_facebook_blueprint, facebook
 from common.database import Database
+from config import MINIMUM_UNCHANGEABLE_SCORE
 import common.utils as utils
 
 import time
@@ -158,6 +159,9 @@ def votes():
 @user_blueprint.route("edit", methods=['POST'])
 @utils.login_required
 def edit():
+    if session['score'] >= MINIMUM_UNCHANGEABLE_SCORE:
+        # unchangeable, just redirect back
+        return utils.redirect_previous_url(default="index")
     id = session['id']
     to_edit = request.form.get("to_edit")
     new_value = request.form.get(f"{to_edit}-selection")

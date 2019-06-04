@@ -44,19 +44,20 @@
                                         <div class="col-md-8 col-6" id="name-value">
                                             {{session['name']}}
                                         </div>
-                                        <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
-                                            <div class="col-md-8 col-6 selection-div" id="name-selection-div">
-                                                <!-- <select class="form-control" name="name-selection" id="name-selection">
-                                                    <option>Select an option man</option>
-                                                </select> -->
-                                                <input type="text" value="{{session['name']}}" name="name-selection" id="name-selection" class="form-control">
-                                                <input type="hidden" name="to_edit" value="name">
-                                            </div>
-                                            <button type="submit" class="btn btn-success submit-btn ml-auto" id="submit-name">Submit</button>
-                                        </form>
-                                        <input type="button" class="btn btn-secondary change-btn" id="change-name"
-                                            value="Change" />
-
+                                        {% if changeable %}
+                                            <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
+                                                <div class="col-md-8 col-6 selection-div" id="name-selection-div">
+                                                    <!-- <select class="form-control" name="name-selection" id="name-selection">
+                                                        <option>Select an option man</option>
+                                                    </select> -->
+                                                    <input type="text" value="{{session['name']}}" name="name-selection" id="name-selection" class="form-control">
+                                                    <input type="hidden" name="to_edit" value="name">
+                                                </div>
+                                                <button type="submit" class="btn btn-success submit-btn ml-auto" id="submit-name">Submit</button>
+                                            </form>
+                                            <input type="button" class="btn btn-secondary change-btn" id="change-name"
+                                                value="Change" />
+                                        {% endif %}
                                     </div>
                                     <hr />
 
@@ -67,6 +68,7 @@
                                         <div class="col-md-8 col-6" id="university-value">
                                             {{session['university'][1]}}
                                         </div>
+                                        {% if changeable %}
                                         <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
                                             <div class="col-md-8 col-6 selection-div" id="university-selection-div">
                                                 <select class="form-control" data-university="{{session['university'][0]}}" name="university-selection"
@@ -80,7 +82,7 @@
                                         </form>
                                         <input type="button" class="btn btn-secondary change-btn" id="change-university"
                                             value="Change" />
-
+                                        {% endif %}
                                     </div>
                                     <hr />
                                     <div class="row">
@@ -90,6 +92,7 @@
                                         <div class="col-md-8 col-6" id="faculty-value">
                                             {{session['faculty'][1]}}
                                         </div>
+                                        {% if changeable %}
                                         <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
                                             <div class="col-md-8 col-6 selection-div" id="faculty-selection-div">
                                                 <select class="form-control" data-faculty="{{session['university'][0]}}" name="faculty-selection"
@@ -103,6 +106,7 @@
                                         </form>
                                         <input type="button" class="btn btn-secondary change-btn" id="change-faculty"
                                             value="Change" />
+                                        {% endif %}
                                     </div>
                                     <hr />
                                     <div class="row">
@@ -112,6 +116,7 @@
                                         <div class="col-md-8 col-6" id="department-value">
                                             {{session['department'][1]}}
                                         </div>
+                                        {% if changeable %}
                                         <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
                                             <div class="col-md-8 col-6 selection-div" id="department-selection-div">
                                                 <select class="form-control" data-department="{{session['faculty'][0]}}" name="department-selection"
@@ -125,6 +130,7 @@
                                         </form>
                                         <input type="button" class="btn btn-secondary change-btn" id="change-department"
                                             value="Change" />
+                                        {% endif %}
                                     </div>
                                     <hr />
                                     <div class="row">
@@ -134,6 +140,7 @@
                                         <div class="col-md-8 col-6" id="speciality-value">
                                             {{session['speciality'][1]}}
                                         </div>
+                                        {% if changeable %}
                                         <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
                                             <div class="col-md-8 col-6 selection-div" id="speciality-selection-div">
                                                 <select class="form-control" data-speciality="{{session['department'][0]}}" name="speciality-selection"
@@ -147,6 +154,7 @@
                                         </form>
                                         <input type="button" class="btn btn-secondary change-btn" id="change-speciality"
                                             value="Change" />
+                                        {% endif %}
                                     </div>
                                     <hr />
                                     <div class="row">
@@ -156,6 +164,7 @@
                                             <div class="col-md-8 col-6" id="year-value">
                                                 {{session['year'][1]}}
                                             </div>
+                                            {% if changeable %}
                                             <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
                                                 <div class="col-md-8 col-6 selection-div" id="year-selection-div">
                                                     <select class="form-control" data-year="{{session['speciality'][0]}}" name="year-selection" id="year-selection">
@@ -168,6 +177,7 @@
                                             </form>
                                             <input type="button" class="btn btn-secondary change-btn" id="change-year"
                                                 value="Change" />
+                                            {% endif %}
                                         </div>
                                         <hr />
                                     <div class="row">
@@ -177,6 +187,7 @@
                                         <div class="col-md-8 col-6" id="group-value">
                                             {{session['group'][1]}}
                                         </div>
+                                        {% if changeable %}
                                         <form action="{{url_for('user.edit')}}" class="form-inline" method="post">
                                             <div class="col-md-8 col-6 selection-div" id="group-selection-div">
                                                 <select class="form-control" data-group="{{session['year'][0]}}" name="group-selection"
@@ -189,6 +200,7 @@
                                         </form>
                                         <input type="button" class="btn btn-secondary change-btn" id="change-group"
                                             value="Change" />
+                                        {% endif %}
                                     </div>
                                     <hr />
                                     <div class="row">

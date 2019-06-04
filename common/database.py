@@ -123,6 +123,7 @@ class Database:
 
     @classmethod
     def edit_user(cls, id, commit=True, **kwargs):
+        """Changes USER attribute using `kwargs`"""
         query = "UPDATE USER SET"
         parameters = []
         for field, value in kwargs.items():
